@@ -1,0 +1,13 @@
+/build
+
+/sdkconfig.old
+/sdkconfig
+
+/hw/*/#*
+/hw/*/_autosave-*
+/hw/*/*-backups/
+/hw/*/out/
+/hw/*/fp-info-cache
+
+*.zip
+*.bak
