@@ -8,6 +8,7 @@
 /hw/*/*-backups/
 /hw/*/out/
 /hw/*/fp-info-cache
+/hw/*/ref/
 
 *.zip
 *.bak
