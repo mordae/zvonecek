@@ -15,6 +15,8 @@
  */
 
 
+#include "synth.h"
+
 #include "led_strip.h"
 
 #include "freertos/FreeRTOS.h"
@@ -55,12 +57,10 @@ static bool keys[18] = {false};
 #define CONFIG_KEY5_GPIO 15
 #define CONFIG_KEY6_GPIO 2
 
-
 #define BUFFER_SIZE (CONFIG_SAMPLE_FREQ)
+#define SAMPLE_COUNT 32
 
-static int16_t buffer[BUFFER_SIZE];
-
-static int transpose = 2;
+static const float max_volume = 0.35;
 
 
 #define NOTE_C4  261.6256
@@ -78,55 +78,49 @@ static int transpose = 2;
 #define NOTE_C5  523.2511
 
 
-static void play_tone(float freq, float hold)
-{
-	int samples = CONFIG_SAMPLE_FREQ / freq;
-	size_t written = 0;
+#define NOTE_COUNT 13
 
-	assert (samples <= BUFFER_SIZE);
+static float notes[NOTE_COUNT] = {
+	NOTE_C4,
+	NOTE_C4s,
+	NOTE_D4,
+	NOTE_D4s,
+	NOTE_E4,
+	NOTE_F4,
+	NOTE_F4s,
+	NOTE_G4,
+	NOTE_G4s,
+	NOTE_A4,
+	NOTE_A4s,
+	NOTE_B4,
+	NOTE_C5,
+};
 
-	float volume = 0.35;
+static struct synth_string string[NOTE_COUNT];
 
-	if (freq < 440.0) {
-		volume = 2.71375e-6 * freq * freq - 0.0026774 * freq + 1.00267;
-	} else if (freq > 1760) {
-		volume = -4.83459e-7 * freq * freq + 0.00141232 * freq - 0.638116;
-	}
+static int16_t buffer[BUFFER_SIZE];
+static float samples[SAMPLE_COUNT];
 
-	/* Calculate pure sine wave. */
-	for (int i = 0; i < samples; i++)
-		buffer[i] = INT16_MAX * volume * sinf(i * M_PI * 2 / samples);
-
-	/* Emit it a couple of times. For at least <hold> long. */
-	for (int i = 0; i < hold * CONFIG_SAMPLE_FREQ; i += samples)
-		i2s_channel_write(snd, buffer, samples * 2, &written, pdMS_TO_TICKS(1000));
-}
-
-
-static void play_noise(float hold)
-{
-	int samples = CONFIG_SAMPLE_FREQ * hold;
-	size_t written = 0;
-
-	assert (samples <= BUFFER_SIZE);
-
-	for (int i = 0; i < samples; i++)
-		buffer[i] = 256 * rand() / RAND_MAX;
-
-	i2s_channel_write(snd, buffer, samples * 2, &written, pdMS_TO_TICKS(1000));
-}
-
-
-
-static float play_next = 0.0;
 
 static void playback_task(void *arg)
 {
 	while (true) {
-		if (play_next > 0.0) {
-			play_tone(play_next, 0.1);
-		} else {
-			play_noise(0.1);
+		for (int i = 0; i < SAMPLE_COUNT; i++)
+			samples[i] = 0.0;
+
+		for (int i = 0; i < NOTE_COUNT; i++) {
+			/* Samples are added. */
+			synth_string_read(string + i, samples, SAMPLE_COUNT);
+		}
+
+		for (int i = 0; i < SAMPLE_COUNT; i++) {
+			buffer[i] = samples[i] * INT16_MAX * max_volume;
+		}
+
+		size_t sofar = 0, written = 0;
+		while (sofar < SAMPLE_COUNT) {
+			i2s_channel_write(snd, buffer + written / 2, SAMPLE_COUNT * 2 - written, &written, portMAX_DELAY);
+			sofar += written;
 		}
 	}
 }
@@ -192,6 +186,12 @@ void app_main(void)
 	ESP_ERROR_CHECK(i2s_channel_init_std_mode(snd, &std_cfg));
 	ESP_ERROR_CHECK(i2s_channel_enable(snd));
 
+	ESP_LOGI(tag, "Prepare strings...");
+	for (int i = 0; i < NOTE_COUNT; i++) {
+		synth_string_init(string + i, CONFIG_SAMPLE_FREQ / notes[i]);
+		string[i].decay = 0.95;
+	}
+
 	ESP_LOGI(tag, "Start the playback task...");
 	xTaskCreate(playback_task, "playback", 4096, NULL, 0, NULL);
 
@@ -238,52 +238,12 @@ void app_main(void)
 		keys[12] = !gpio_get_level(CONFIG_KEY6_GPIO);
 		ESP_ERROR_CHECK(gpio_set_level(CONFIG_ROW3_GPIO, 1));
 
-		for (int k = 0; k < 18; k++) {
-			if (keys[k]) {
-				ESP_LOGI(tag, "key%i down", k);
+		for (int i = 0; i < NOTE_COUNT; i++) {
+			if (keys[i]) {
+				ESP_LOGI(tag, "Pluck string %i", i);
+				synth_string_pluck(string + i, 1.0);
 			}
 		}
-
-		play_next = 0.0;
-
-		if (keys[0])
-			play_next = NOTE_C4 * transpose;
-
-		if (keys[1])
-			play_next = NOTE_C4s * transpose;
-
-		if (keys[2])
-			play_next = NOTE_D4 * transpose;
-
-		if (keys[3])
-			play_next = NOTE_D4s * transpose;
-
-		if (keys[4])
-			play_next = NOTE_E4 * transpose;
-
-		if (keys[5])
-			play_next = NOTE_F4 * transpose;
-
-		if (keys[6])
-			play_next = NOTE_F4s * transpose;
-
-		if (keys[7])
-			play_next = NOTE_G4 * transpose;
-
-		if (keys[8])
-			play_next = NOTE_G4s * transpose;
-
-		if (keys[9])
-			play_next = NOTE_A4 * transpose;
-
-		if (keys[10])
-			play_next = NOTE_A4s * transpose;
-
-		if (keys[11])
-			play_next = NOTE_B4 * transpose;
-
-		if (keys[12])
-			play_next = NOTE_C5 * transpose;
 
 		if (keys[13]) {
 			// nothing yet
@@ -294,16 +254,7 @@ void app_main(void)
 		}
 
 		if (keys[15]) {
-			if (1 == transpose)
-				transpose = 2;
-			else if (2 == transpose)
-				transpose = 4;
-			else if (4 == transpose)
-				transpose = 1;
-
-			play_next = NOTE_C4 * transpose;
-			vTaskDelay(pdMS_TO_TICKS(300));
-			play_next = 0.0;
+			// nothing yet
 		}
 
 		if (keys[16]) {
