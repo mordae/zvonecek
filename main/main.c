@@ -34,17 +34,8 @@
 static const char *tag = "main";
 
 
-static led_strip_handle_t led;
-static i2s_chan_handle_t snd;
-
-
-/* Keys, organized to three rows of 6 keys each. */
-static bool keys[18] = {false};
-
-
-#define CONFIG_SAMPLE_FREQ 48000
-
 #define CONFIG_LED_GPIO 16
+#define CONFIG_VOLUME_GPIO 18
 
 #define CONFIG_ROW1_GPIO 26
 #define CONFIG_ROW2_GPIO 4
@@ -57,12 +48,9 @@ static bool keys[18] = {false};
 #define CONFIG_KEY5_GPIO 15
 #define CONFIG_KEY6_GPIO 2
 
-#define BUFFER_SIZE (CONFIG_SAMPLE_FREQ)
-#define SAMPLE_COUNT 32
+#define CONFIG_SAMPLE_FREQ 48000
 
-static const float max_volume = 0.35;
-
-
+#define NOTE_COUNT 13
 #define NOTE_C4  261.6256
 #define NOTE_C4s 277.1826
 #define NOTE_D4  293.6648
@@ -78,50 +66,136 @@ static const float max_volume = 0.35;
 #define NOTE_C5  523.2511
 
 
-#define NOTE_COUNT 13
-
-static float notes[NOTE_COUNT] = {
-	NOTE_C4,
-	NOTE_C4s,
-	NOTE_D4,
-	NOTE_D4s,
-	NOTE_E4,
-	NOTE_F4,
-	NOTE_F4s,
-	NOTE_G4,
-	NOTE_G4s,
-	NOTE_A4,
-	NOTE_A4s,
-	NOTE_B4,
-	NOTE_C5,
+static struct synth_string string[NOTE_COUNT] = {
+	{
+		.delay = CONFIG_SAMPLE_FREQ / NOTE_C4,
+		.decay = 0.99,
+		.feedback = 0.90,
+	},
+	{
+		.delay = CONFIG_SAMPLE_FREQ / NOTE_C4s,
+		.decay = 0.99,
+		.feedback = 0.90,
+	},
+	{
+		.delay = CONFIG_SAMPLE_FREQ / NOTE_D4,
+		.decay = 0.99,
+		.feedback = 0.90,
+	},
+	{
+		.delay = CONFIG_SAMPLE_FREQ / NOTE_D4s,
+		.decay = 0.99,
+		.feedback = 0.90,
+	},
+	{
+		.delay = CONFIG_SAMPLE_FREQ / NOTE_E4,
+		.decay = 0.99,
+		.feedback = 0.90,
+	},
+	{
+		.delay = CONFIG_SAMPLE_FREQ / NOTE_F4,
+		.decay = 0.99,
+		.feedback = 0.90,
+	},
+	{
+		.delay = CONFIG_SAMPLE_FREQ / NOTE_F4s,
+		.decay = 0.99,
+		.feedback = 0.90,
+	},
+	{
+		.delay = CONFIG_SAMPLE_FREQ / NOTE_G4,
+		.decay = 0.99,
+		.feedback = 0.90,
+	},
+	{
+		.delay = CONFIG_SAMPLE_FREQ / NOTE_G4s,
+		.decay = 0.99,
+		.feedback = 0.90,
+	},
+	{
+		.delay = CONFIG_SAMPLE_FREQ / NOTE_A4,
+		.decay = 0.99,
+		.feedback = 0.90,
+	},
+	{
+		.delay = CONFIG_SAMPLE_FREQ / NOTE_A4s,
+		.decay = 0.99,
+		.feedback = 0.90,
+	},
+	{
+		.delay = CONFIG_SAMPLE_FREQ / NOTE_B4,
+		.decay = 0.99,
+		.feedback = 0.90,
+	},
+	{
+		.delay = CONFIG_SAMPLE_FREQ / NOTE_C5,
+		.decay = 0.99,
+		.feedback = 0.90,
+	},
 };
 
-static struct synth_string string[NOTE_COUNT];
 
+/* Běží liška k táboru */
+static const char song0[] = "CECEG GGCECED DDCEGEDDE CEGEDDC";
+
+
+#define BUFFER_SIZE 64
 static int16_t buffer[BUFFER_SIZE];
-static float samples[SAMPLE_COUNT];
+
+
+static led_strip_handle_t led;
+static i2s_chan_handle_t snd;
+
+
+/* These change depending on the volume slider. */
+static int16_t max_volume = 16000;
+static int16_t note_volume = 11500;
+
+
+/* Keys, organized to three rows of 6 keys each. */
+#define NUM_KEYS 18
+static bool keys[NUM_KEYS] = {false};
+static bool prev_keys[NUM_KEYS] = {false};
 
 
 static void playback_task(void *arg)
 {
 	while (true) {
-		for (int i = 0; i < SAMPLE_COUNT; i++)
-			samples[i] = 0.0;
+		for (int i = 0; i < BUFFER_SIZE; i++)
+			buffer[i] = 0;
 
-		for (int i = 0; i < NOTE_COUNT; i++) {
-			/* Samples are added. */
-			synth_string_read(string + i, samples, SAMPLE_COUNT);
+		/*
+		 * Add samples from all strings to the buffer.
+		 * Most are going to be zeroes.
+		 */
+		for (int i = 0; i < NOTE_COUNT; i++)
+			synth_string_read(string + i, buffer, BUFFER_SIZE);
+
+		/*
+		 * Duck volume of the whole buffer if it would exceed the
+		 * maximum allowed. This is rather crude.
+		 */
+		int peak = 0;
+
+		for (int i = 0; i < BUFFER_SIZE; i++) {
+			if (abs(buffer[i]) > peak)
+				peak = abs(buffer[i]);
 		}
 
-		for (int i = 0; i < SAMPLE_COUNT; i++) {
-			buffer[i] = samples[i] * INT16_MAX * max_volume;
+		if (peak > max_volume) {
+			float ratio = (float)max_volume / (float)peak;
+			for (int i = 0; i < BUFFER_SIZE; i++)
+				buffer[i] *= ratio;
 		}
 
-		size_t sofar = 0, written = 0;
-		while (sofar < SAMPLE_COUNT) {
-			i2s_channel_write(snd, buffer + written / 2, SAMPLE_COUNT * 2 - written, &written, portMAX_DELAY);
-			sofar += written;
-		}
+		/*
+		 * Our buffer is small, so we should be able to emit it whole.
+		 */
+		size_t total = BUFFER_SIZE * sizeof(int16_t);
+		size_t written = 0;
+
+		ESP_ERROR_CHECK(i2s_channel_write(snd, buffer, total, &written, portMAX_DELAY));
+		assert (total == written);
 	}
 }
 
@@ -134,6 +208,23 @@ void app_main(void)
 		.max_leds = 8,
 	};
 	ESP_ERROR_CHECK(led_strip_new_rmt_device(&config, &led));
+
+	ESP_LOGI(tag, "Detect volume level...");
+	gpio_config_t gpio_vol = {
+		.pin_bit_mask = BIT64(CONFIG_VOLUME_GPIO),
+		.intr_type = GPIO_INTR_DISABLE,
+		.mode = GPIO_MODE_INPUT,
+	};
+
+	ESP_ERROR_CHECK(gpio_config(&gpio_vol));
+
+	if (gpio_get_level(CONFIG_VOLUME_GPIO)) {
+		ESP_LOGI(tag, "Volume: high");
+	} else {
+		ESP_LOGI(tag, "Volume: low");
+		max_volume *= 0.5;
+		note_volume *= 0.5;
+	}
 
 	ESP_LOGI(tag, "Configure keys...");
 	gpio_config_t gpio_keys = {
@@ -186,12 +277,6 @@ void app_main(void)
 	ESP_ERROR_CHECK(i2s_channel_init_std_mode(snd, &std_cfg));
 	ESP_ERROR_CHECK(i2s_channel_enable(snd));
 
-	ESP_LOGI(tag, "Prepare strings...");
-	for (int i = 0; i < NOTE_COUNT; i++) {
-		synth_string_init(string + i, CONFIG_SAMPLE_FREQ / notes[i]);
-		string[i].decay = 0.95;
-	}
-
 	ESP_LOGI(tag, "Start the playback task...");
 	xTaskCreate(playback_task, "playback", 4096, NULL, 0, NULL);
 
@@ -239,32 +324,54 @@ void app_main(void)
 		ESP_ERROR_CHECK(gpio_set_level(CONFIG_ROW3_GPIO, 1));
 
 		for (int i = 0; i < NOTE_COUNT; i++) {
-			if (keys[i]) {
+			if (keys[i] && !prev_keys[i]) {
 				ESP_LOGI(tag, "Pluck string %i", i);
-				synth_string_pluck(string + i, 1.0);
+				synth_string_pluck(string + i, note_volume);
 			}
 		}
 
-		if (keys[13]) {
-			// nothing yet
+		if (keys[13] && !prev_keys[13]) {
+			const char notes[] = "CcDdEFfGgAaH";
+			for (const char *c = song0; *c; c++) {
+				if ((*c) != ' ') {
+					int note = strchrnul(notes, *c) - notes;
+					synth_string_pluck(string + note, note_volume);
+				}
+				vTaskDelay(pdMS_TO_TICKS(333));
+			}
 		}
 
-		if (keys[14]) {
-			// nothing yet
+		if (keys[14] && !prev_keys[14]) {
+			for (int i = 0; i < NUM_KEYS; i++) {
+				string[i].decay -= 0.001;
+			}
+			ESP_LOGI(tag, "decay = %f", string[0].decay);
 		}
 
-		if (keys[15]) {
-			// nothing yet
+		if (keys[15] && !prev_keys[15]) {
+			for (int i = 0; i < NUM_KEYS; i++) {
+				string[i].decay += 0.001;
+			}
+			ESP_LOGI(tag, "decay = %f", string[0].decay);
 		}
 
-		if (keys[16]) {
-			// nothing yet
+		if (keys[16] && !prev_keys[16]) {
+			for (int i = 0; i < NUM_KEYS; i++) {
+				string[i].feedback -= 0.01;
+			}
+			ESP_LOGI(tag, "feedback = %f", string[0].feedback);
 		}
 
-		if (keys[17]) {
-			// nothing yet
+		if (keys[17] && !prev_keys[17]) {
+			for (int i = 0; i < NUM_KEYS; i++) {
+				string[i].feedback += 0.01;
+			}
+			ESP_LOGI(tag, "feedback = %f", string[0].feedback);
 		}
 
-		vTaskDelay(pdMS_TO_TICKS(100));
+		for (int i = 0; i < NUM_KEYS; i++)
+			prev_keys[i] = keys[i];
+
+		vTaskDelay(pdMS_TO_TICKS(50));
 	}
 }

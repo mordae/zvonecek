@@ -19,15 +19,15 @@
 #include <stdlib.h>
 
 #if !defined(SYNTH_MAX_DELAY)
-# define SYNTH_MAX_DELAY 220
+# define SYNTH_MAX_DELAY 512
 #endif
 
 struct synth_string {
 	size_t delay, offset;
 	float decay;
-	float buffer[SYNTH_MAX_DELAY];
+	float feedback;
+	int16_t buffer[SYNTH_MAX_DELAY];
 };
 
-void synth_string_init(struct synth_string *ss, size_t delay);
-void synth_string_pluck(struct synth_string *ss, float strength);
-void synth_string_read(struct synth_string *ss, float *out, size_t len);
+void synth_string_pluck(struct synth_string *ss, int16_t strength);
+void synth_string_read(struct synth_string *ss, int16_t *out, size_t len);

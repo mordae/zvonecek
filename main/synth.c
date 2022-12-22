@@ -20,51 +20,47 @@
 #include <stdlib.h>
 
 
-void synth_string_init(struct synth_string *ss, size_t delay)
-{
-	ss->delay = delay;
-	ss->offset = 0;
-	ss->decay = 0.99;
-
-	for (int i = 0; i < SYNTH_MAX_DELAY; i++)
-		ss->buffer[i] = 0.0;
-}
-
-
-void synth_string_pluck(struct synth_string *ss, float strength)
+void synth_string_pluck(struct synth_string *ss, int16_t strength)
 {
 	ss->offset = 0;
 
 	for (int i = 0; i < ss->delay; i++)
-		ss->buffer[i] = strength * rand() / RAND_MAX;
+		ss->buffer[i] = strength * 1.0 * rand() / RAND_MAX;
 }
 
 
-inline static int wrap(int a, int min_, int max_)
+inline static int wrap(int a, int max_)
 {
-	if (a >= max_)
-		return min_;
-
-	if (a < min_)
-		return wrap(max_ - a, min_, max_);
-
-	return a;
+	return (a + max_) % max_;
 }
 
 
-void synth_string_read(struct synth_string *ss, float *out, size_t len)
+void synth_string_read(struct synth_string *ss, int16_t *out, size_t len)
 {
+	float fb = ss->feedback;
+	float nfb = (1.0 - ss->feedback) * 0.5;
+	float decay = ss->decay;
+
+	int offset = ss->offset;
+	int delay = ss->delay;
+
 	for (int i = 0; i < len; i++) {
-		int this = wrap(ss->offset + i, 0, ss->delay);
-		int prev = wrap(this - 1, 0, ss->delay);
+		int this = wrap(offset + i, delay);
+		int prev = wrap(this - 1, delay);
+		int next = wrap(this + 1, delay);
 
-		float this_sample = ss->buffer[this];
-		float prev_sample = ss->buffer[prev];
+		int16_t this_sample = ss->buffer[this];
+		int16_t prev_sample = ss->buffer[prev];
+		int16_t next_sample = ss->buffer[next];
 
 		*(out++) += this_sample;
 
-		ss->buffer[this] = (this_sample + prev_sample) * 0.5 * ss->decay;
+		int new = this_sample * fb
+		        + prev_sample * nfb
+		        + next_sample * nfb;
+
+		ss->buffer[this] = new * decay;
 	}
 
-	ss->offset = wrap(ss->offset + len, 0, ss->delay);
+	ss->offset = wrap(offset + len, delay);
 }
