@@ -438,6 +438,11 @@ void app_main(void)
 
 		ESP_ERROR_CHECK(gpio_set_level(CONFIG_ROW3_GPIO, 1));
 
+		int total_pressed = 0;
+
+		for (int i = 0; i < NUM_KEYS; i++)
+			total_pressed += keys[i];
+
 		for (int i = 0; i < KEYBOARD; i++) {
 			if (keys[i] && !prev_keys[i]) {
 				ESP_LOGI(tag, "Pluck string %i", transpose + i);
@@ -449,7 +454,7 @@ void app_main(void)
 			}
 		}
 
-		if (keys[13] && !prev_keys[13]) {
+		if (keys[13] && !prev_keys[13] && 1 == total_pressed) {
 			const char notes[] = "CcDdEFfGgAaH";
 			for (const char *c = song0; *c; c++) {
 				if ((*c) != ' ') {
@@ -472,7 +477,7 @@ void app_main(void)
 			/* free */
 		}
 
-		if (keys[17]) {
+		if (keys[17] && 2 == total_pressed) {
 			if (keys[0] && !prev_keys[0]) {
 				for (int i = 0; i < NUM_KEYS; i++) {
 					string[i].decay -= 0.001;
