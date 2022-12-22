@@ -393,7 +393,6 @@ void app_main(void)
 	ESP_ERROR_CHECK(gpio_set_level(CONFIG_ROW2_GPIO, 1));
 	ESP_ERROR_CHECK(gpio_set_level(CONFIG_ROW3_GPIO, 1));
 
-#if 0
 	ESP_ERROR_CHECK(led_strip_set_pixel(led, 0, 7, 7, 7));
 	ESP_ERROR_CHECK(led_strip_set_pixel(led, 1, 7, 7, 7));
 	ESP_ERROR_CHECK(led_strip_set_pixel(led, 2, 7, 7, 7));
@@ -403,7 +402,6 @@ void app_main(void)
 	ESP_ERROR_CHECK(led_strip_set_pixel(led, 6, 7, 7, 7));
 	ESP_ERROR_CHECK(led_strip_set_pixel(led, 7, 7, 7, 7));
 	ESP_ERROR_CHECK(led_strip_refresh(led));
-#endif
 
 	while (1) {
 		ESP_ERROR_CHECK(gpio_set_level(CONFIG_ROW1_GPIO, 0));
