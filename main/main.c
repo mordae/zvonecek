@@ -14,8 +14,9 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-
 #include "synth.h"
+
+#include "config.h"
 
 #include "led_strip.h"
 
@@ -33,24 +34,9 @@
 
 static const char *tag = "main";
 
+#define NOTE_COUNT (3 * 12 + 1)
+#define KEYBOARD 13
 
-#define CONFIG_LED_GPIO 16
-#define CONFIG_VOLUME_GPIO 18
-
-#define CONFIG_ROW1_GPIO 26
-#define CONFIG_ROW2_GPIO 4
-#define CONFIG_ROW3_GPIO 17
-
-#define CONFIG_KEY1_GPIO 27
-#define CONFIG_KEY2_GPIO 14
-#define CONFIG_KEY3_GPIO 12
-#define CONFIG_KEY4_GPIO 13
-#define CONFIG_KEY5_GPIO 15
-#define CONFIG_KEY6_GPIO 2
-
-#define CONFIG_SAMPLE_FREQ 48000
-
-#define NOTE_COUNT 13
 #define NOTE_C4  261.6256
 #define NOTE_C4s 277.1826
 #define NOTE_D4  293.6648
@@ -62,8 +48,7 @@ static const char *tag = "main";
 #define NOTE_G4s 415.3047
 #define NOTE_A4  440.0000
 #define NOTE_A4s 466.1638
-#define NOTE_B4  493.8833
-#define NOTE_C5  523.2511
+#define NOTE_H4  493.8833
 
 
 static struct synth_string string[NOTE_COUNT] = {
@@ -123,12 +108,132 @@ static struct synth_string string[NOTE_COUNT] = {
 		.feedback = 0.90,
 	},
 	{
-		.delay = CONFIG_SAMPLE_FREQ / NOTE_B4,
+		.delay = CONFIG_SAMPLE_FREQ / NOTE_H4,
 		.decay = 0.99,
 		.feedback = 0.90,
 	},
 	{
-		.delay = CONFIG_SAMPLE_FREQ / NOTE_C5,
+		.delay = CONFIG_SAMPLE_FREQ / (NOTE_C4 * 2),
+		.decay = 0.99,
+		.feedback = 0.90,
+	},
+	{
+		.delay = CONFIG_SAMPLE_FREQ / (NOTE_C4s * 2),
+		.decay = 0.99,
+		.feedback = 0.90,
+	},
+	{
+		.delay = CONFIG_SAMPLE_FREQ / (NOTE_D4 * 2),
+		.decay = 0.99,
+		.feedback = 0.90,
+	},
+	{
+		.delay = CONFIG_SAMPLE_FREQ / (NOTE_D4s * 2),
+		.decay = 0.99,
+		.feedback = 0.90,
+	},
+	{
+		.delay = CONFIG_SAMPLE_FREQ / (NOTE_E4 * 2),
+		.decay = 0.99,
+		.feedback = 0.90,
+	},
+	{
+		.delay = CONFIG_SAMPLE_FREQ / (NOTE_F4 * 2),
+		.decay = 0.99,
+		.feedback = 0.90,
+	},
+	{
+		.delay = CONFIG_SAMPLE_FREQ / (NOTE_F4s * 2),
+		.decay = 0.99,
+		.feedback = 0.90,
+	},
+	{
+		.delay = CONFIG_SAMPLE_FREQ / (NOTE_G4 * 2),
+		.decay = 0.99,
+		.feedback = 0.90,
+	},
+	{
+		.delay = CONFIG_SAMPLE_FREQ / (NOTE_G4s * 2),
+		.decay = 0.99,
+		.feedback = 0.90,
+	},
+	{
+		.delay = CONFIG_SAMPLE_FREQ / (NOTE_A4 * 2),
+		.decay = 0.99,
+		.feedback = 0.90,
+	},
+	{
+		.delay = CONFIG_SAMPLE_FREQ / (NOTE_A4s * 2),
+		.decay = 0.99,
+		.feedback = 0.90,
+	},
+	{
+		.delay = CONFIG_SAMPLE_FREQ / (NOTE_H4 * 2),
+		.decay = 0.99,
+		.feedback = 0.90,
+	},
+	{
+		.delay = CONFIG_SAMPLE_FREQ / (NOTE_C4 * 4),
+		.decay = 0.99,
+		.feedback = 0.90,
+	},
+	{
+		.delay = CONFIG_SAMPLE_FREQ / (NOTE_C4s * 4),
+		.decay = 0.99,
+		.feedback = 0.90,
+	},
+	{
+		.delay = CONFIG_SAMPLE_FREQ / (NOTE_D4 * 4),
+		.decay = 0.99,
+		.feedback = 0.90,
+	},
+	{
+		.delay = CONFIG_SAMPLE_FREQ / (NOTE_D4s * 4),
+		.decay = 0.99,
+		.feedback = 0.90,
+	},
+	{
+		.delay = CONFIG_SAMPLE_FREQ / (NOTE_E4 * 4),
+		.decay = 0.99,
+		.feedback = 0.90,
+	},
+	{
+		.delay = CONFIG_SAMPLE_FREQ / (NOTE_F4 * 4),
+		.decay = 0.99,
+		.feedback = 0.90,
+	},
+	{
+		.delay = CONFIG_SAMPLE_FREQ / (NOTE_F4s * 4),
+		.decay = 0.99,
+		.feedback = 0.90,
+	},
+	{
+		.delay = CONFIG_SAMPLE_FREQ / (NOTE_G4 * 4),
+		.decay = 0.99,
+		.feedback = 0.90,
+	},
+	{
+		.delay = CONFIG_SAMPLE_FREQ / (NOTE_G4s * 4),
+		.decay = 0.99,
+		.feedback = 0.90,
+	},
+	{
+		.delay = CONFIG_SAMPLE_FREQ / (NOTE_A4 * 4),
+		.decay = 0.99,
+		.feedback = 0.90,
+	},
+	{
+		.delay = CONFIG_SAMPLE_FREQ / (NOTE_A4s * 4),
+		.decay = 0.99,
+		.feedback = 0.90,
+	},
+	{
+		.delay = CONFIG_SAMPLE_FREQ / (NOTE_H4 * 4),
+		.decay = 0.99,
+		.feedback = 0.90,
+	},
+	{
+		.delay = CONFIG_SAMPLE_FREQ / (NOTE_C4 * 8),
 		.decay = 0.99,
 		.feedback = 0.90,
 	},
@@ -141,6 +246,9 @@ static const char song0[] = "CECEG GGCECED DDCEGEDDE CEGEDDC";
 
 #define BUFFER_SIZE 64
 static int16_t buffer[BUFFER_SIZE];
+
+/* To transpose to higher octaves. */
+static int transpose = 0;
 
 
 static led_strip_handle_t led;
@@ -168,8 +276,8 @@ static void playback_task(void *arg)
 		 * Add samples from all strings to the buffer.
 		 * Most are going to be zeroes.
 		 */
-		for (int i = 0; i < NOTE_COUNT; i++)
-			synth_string_read(string + i, buffer, BUFFER_SIZE);
+		for (int i = 0; i < KEYBOARD; i++)
+			synth_string_read(string + transpose + i, buffer, BUFFER_SIZE);
 
 		/*
 		 * Duck volume of the whole buffer if it would exceed the
@@ -285,15 +393,17 @@ void app_main(void)
 	ESP_ERROR_CHECK(gpio_set_level(CONFIG_ROW2_GPIO, 1));
 	ESP_ERROR_CHECK(gpio_set_level(CONFIG_ROW3_GPIO, 1));
 
-	ESP_ERROR_CHECK(led_strip_set_pixel(led, 0, 3, 3, 3));
-	ESP_ERROR_CHECK(led_strip_set_pixel(led, 1, 3, 3, 3));
-	ESP_ERROR_CHECK(led_strip_set_pixel(led, 2, 3, 3, 3));
-	ESP_ERROR_CHECK(led_strip_set_pixel(led, 3, 3, 3, 3));
-	ESP_ERROR_CHECK(led_strip_set_pixel(led, 4, 3, 3, 3));
-	ESP_ERROR_CHECK(led_strip_set_pixel(led, 5, 3, 3, 3));
-	ESP_ERROR_CHECK(led_strip_set_pixel(led, 6, 3, 3, 3));
-	ESP_ERROR_CHECK(led_strip_set_pixel(led, 7, 3, 3, 3));
+#if 0
+	ESP_ERROR_CHECK(led_strip_set_pixel(led, 0, 7, 7, 7));
+	ESP_ERROR_CHECK(led_strip_set_pixel(led, 1, 7, 7, 7));
+	ESP_ERROR_CHECK(led_strip_set_pixel(led, 2, 7, 7, 7));
+	ESP_ERROR_CHECK(led_strip_set_pixel(led, 3, 7, 7, 7));
+	ESP_ERROR_CHECK(led_strip_set_pixel(led, 4, 7, 7, 7));
+	ESP_ERROR_CHECK(led_strip_set_pixel(led, 5, 7, 7, 7));
+	ESP_ERROR_CHECK(led_strip_set_pixel(led, 6, 7, 7, 7));
+	ESP_ERROR_CHECK(led_strip_set_pixel(led, 7, 7, 7, 7));
 	ESP_ERROR_CHECK(led_strip_refresh(led));
+#endif
 
 	while (1) {
 		ESP_ERROR_CHECK(gpio_set_level(CONFIG_ROW1_GPIO, 0));
@@ -323,10 +433,10 @@ void app_main(void)
 		keys[12] = !gpio_get_level(CONFIG_KEY6_GPIO);
 		ESP_ERROR_CHECK(gpio_set_level(CONFIG_ROW3_GPIO, 1));
 
-		for (int i = 0; i < NOTE_COUNT; i++) {
+		for (int i = 0; i < KEYBOARD; i++) {
 			if (keys[i] && !prev_keys[i]) {
-				ESP_LOGI(tag, "Pluck string %i", i);
-				synth_string_pluck(string + i, note_volume);
+				ESP_LOGI(tag, "Pluck string %i", transpose + i);
+				synth_string_pluck(string + transpose + i, note_volume);
 			}
 		}
 
@@ -335,38 +445,54 @@ void app_main(void)
 			for (const char *c = song0; *c; c++) {
 				if ((*c) != ' ') {
 					int note = strchrnul(notes, *c) - notes;
-					synth_string_pluck(string + note, note_volume);
+					synth_string_pluck(string + transpose + note, note_volume);
 				}
 				vTaskDelay(pdMS_TO_TICKS(333));
 			}
 		}
 
 		if (keys[14] && !prev_keys[14]) {
-			for (int i = 0; i < NUM_KEYS; i++) {
-				string[i].decay -= 0.001;
-			}
-			ESP_LOGI(tag, "decay = %f", string[0].decay);
+			/* free */
 		}
 
 		if (keys[15] && !prev_keys[15]) {
-			for (int i = 0; i < NUM_KEYS; i++) {
-				string[i].decay += 0.001;
-			}
-			ESP_LOGI(tag, "decay = %f", string[0].decay);
+			/* free */
 		}
 
 		if (keys[16] && !prev_keys[16]) {
-			for (int i = 0; i < NUM_KEYS; i++) {
-				string[i].feedback -= 0.01;
-			}
-			ESP_LOGI(tag, "feedback = %f", string[0].feedback);
+			/* free */
 		}
 
-		if (keys[17] && !prev_keys[17]) {
-			for (int i = 0; i < NUM_KEYS; i++) {
-				string[i].feedback += 0.01;
+		if (keys[17]) {
+			if (keys[0] && !prev_keys[0]) {
+				for (int i = 0; i < NUM_KEYS; i++) {
+					string[i].decay -= 0.001;
+				}
+				ESP_LOGI(tag, "decay = %f", string[0].decay);
+			} else if (keys[2] && !prev_keys[2]) {
+				for (int i = 0; i < NUM_KEYS; i++) {
+					string[i].decay += 0.001;
+				}
+				ESP_LOGI(tag, "decay = %f", string[0].decay);
+			} else if (keys[4] && !prev_keys[4]) {
+				for (int i = 0; i < NUM_KEYS; i++) {
+					string[i].feedback -= 0.01;
+				}
+				ESP_LOGI(tag, "feedback = %f", string[0].feedback);
+			} else if (keys[5] && !prev_keys[5]) {
+				for (int i = 0; i < NUM_KEYS; i++) {
+					string[i].feedback += 0.01;
+				}
+				ESP_LOGI(tag, "feedback = %f", string[0].feedback);
+			} else if (keys[7] && !prev_keys[7]) {
+				if (transpose == 0)
+					transpose = 12;
+				else if (transpose == 12)
+					transpose = 24;
+				else if (transpose == 24)
+					transpose = 0;
+				ESP_LOGI(tag, "transpose = %i", transpose);
 			}
-			ESP_LOGI(tag, "feedback = %f", string[0].feedback);
 		}
 
 		for (int i = 0; i < NUM_KEYS; i++)

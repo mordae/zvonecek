@@ -16,6 +16,8 @@
 
 #include "synth.h"
 
+#include "config.h"
+
 #include <math.h>
 #include <stdlib.h>
 
@@ -39,10 +41,11 @@ void synth_string_read(struct synth_string *ss, int16_t *out, size_t len)
 {
 	float fb = ss->feedback;
 	float nfb = (1.0 - ss->feedback) * 0.5;
-	float decay = ss->decay;
 
 	int offset = ss->offset;
 	int delay = ss->delay;
+
+	float decay = 1.0 - (1.0 - ss->decay) * delay * 440.0 / CONFIG_SAMPLE_FREQ;
 
 	for (int i = 0; i < len; i++) {
 		int this = wrap(offset + i, delay);

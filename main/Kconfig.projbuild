@@ -1,0 +1,65 @@
+menu "Zvonecek"
+	menu "Audio"
+		config SAMPLE_FREQ
+			int "Sampling frequency"
+			default 48000
+			range 44100 96000
+	endmenu
+
+	menu "GPIO Mapping"
+		config LED_GPIO
+			int "WS2812 pin"
+			default 16
+			range 0 46
+
+		config VOLUME_GPIO
+			int "Volume switch pin"
+			default 18
+			range 0 46
+
+		config ROW1_GPIO
+			int "Keyboard row 1 pin"
+			default 26
+			range 0 46
+
+		config ROW2_GPIO
+			int "Keyboard row 2 pin"
+			default 4
+			range 0 46
+
+		config ROW3_GPIO
+			int "Keyboard row 3 pin"
+			default 17
+			range 0 46
+
+		config KEY1_GPIO
+			int "Keyboard key 1 pin"
+			default 27
+			range 0 46
+
+		config KEY2_GPIO
+			int "Keyboard key 2 pin"
+			default 14
+			range 0 46
+
+		config KEY3_GPIO
+			int "Keyboard key 3 pin"
+			default 12
+			range 0 46
+
+		config KEY4_GPIO
+			int "Keyboard key 4 pin"
+			default 13
+			range 0 46
+
+		config KEY5_GPIO
+			int "Keyboard key 5 pin"
+			default 15
+			range 0 46
+
+		config KEY6_GPIO
+			int "Keyboard key 6 pin"
+			default 2
+			range 0 46
+	endmenu
+endmenu

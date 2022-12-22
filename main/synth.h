@@ -16,6 +16,7 @@
 
 #pragma once
 
+#include <stdint.h>
 #include <stdlib.h>
 
 #if !defined(SYNTH_MAX_DELAY)
