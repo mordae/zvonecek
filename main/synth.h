@@ -31,4 +31,5 @@ struct synth_string {
 };
 
 void synth_string_pluck(struct synth_string *ss, int16_t strength);
+void synth_string_pluck_shortly(struct synth_string *ss, int16_t strength);
 void synth_string_read(struct synth_string *ss, int16_t *out, size_t len);

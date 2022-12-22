@@ -25,9 +25,17 @@
 void synth_string_pluck(struct synth_string *ss, int16_t strength)
 {
 	ss->offset = 0;
+	ss->decay = 0.999;
 
 	for (int i = 0; i < ss->delay; i++)
 		ss->buffer[i] = strength * 1.0 * rand() / RAND_MAX;
+}
+
+
+void synth_string_pluck_shortly(struct synth_string *ss, int16_t strength)
+{
+	synth_string_pluck(ss, strength);
+	ss->decay = 0.99;
 }
 
 

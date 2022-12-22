@@ -248,7 +248,7 @@ static const char song0[] = "CECEG GGCECED DDCEGEDDE CEGEDDC";
 static int16_t buffer[BUFFER_SIZE];
 
 /* To transpose to higher octaves. */
-static int transpose = 0;
+static int transpose = 12;
 
 
 static led_strip_handle_t led;
@@ -358,7 +358,7 @@ void app_main(void)
 		              | BIT64(CONFIG_ROW3_GPIO)
 		              ,
 		.intr_type = GPIO_INTR_DISABLE,
-		.mode = GPIO_MODE_OUTPUT,
+		.mode = GPIO_MODE_OUTPUT_OD,
 		.pull_down_en = 0,
 		.pull_up_en = 0,
 	};
@@ -405,36 +405,47 @@ void app_main(void)
 
 	while (1) {
 		ESP_ERROR_CHECK(gpio_set_level(CONFIG_ROW1_GPIO, 0));
+		vTaskDelay(1);
+
 		keys[13] = !gpio_get_level(CONFIG_KEY1_GPIO);
 		keys[14] = !gpio_get_level(CONFIG_KEY2_GPIO);
 		keys[15] = !gpio_get_level(CONFIG_KEY3_GPIO);
 		keys[16] = !gpio_get_level(CONFIG_KEY4_GPIO);
 		keys[17] = !gpio_get_level(CONFIG_KEY5_GPIO);
 		keys[ 3] = !gpio_get_level(CONFIG_KEY6_GPIO);
-		ESP_ERROR_CHECK(gpio_set_level(CONFIG_ROW1_GPIO, 1));
 
+		ESP_ERROR_CHECK(gpio_set_level(CONFIG_ROW1_GPIO, 1));
 		ESP_ERROR_CHECK(gpio_set_level(CONFIG_ROW2_GPIO, 0));
+		vTaskDelay(1);
+
 		keys[ 2] = !gpio_get_level(CONFIG_KEY1_GPIO);
 		keys[ 8] = !gpio_get_level(CONFIG_KEY2_GPIO);
 		keys[ 6] = !gpio_get_level(CONFIG_KEY3_GPIO);
 		keys[10] = !gpio_get_level(CONFIG_KEY4_GPIO);
 		keys[ 1] = !gpio_get_level(CONFIG_KEY5_GPIO);
 		keys[ 0] = !gpio_get_level(CONFIG_KEY6_GPIO);
-		ESP_ERROR_CHECK(gpio_set_level(CONFIG_ROW2_GPIO, 1));
 
+		ESP_ERROR_CHECK(gpio_set_level(CONFIG_ROW2_GPIO, 1));
 		ESP_ERROR_CHECK(gpio_set_level(CONFIG_ROW3_GPIO, 0));
+		vTaskDelay(1);
+
 		keys[ 4] = !gpio_get_level(CONFIG_KEY1_GPIO);
 		keys[ 5] = !gpio_get_level(CONFIG_KEY2_GPIO);
 		keys[ 7] = !gpio_get_level(CONFIG_KEY3_GPIO);
 		keys[ 9] = !gpio_get_level(CONFIG_KEY4_GPIO);
 		keys[11] = !gpio_get_level(CONFIG_KEY5_GPIO);
 		keys[12] = !gpio_get_level(CONFIG_KEY6_GPIO);
+
 		ESP_ERROR_CHECK(gpio_set_level(CONFIG_ROW3_GPIO, 1));
 
 		for (int i = 0; i < KEYBOARD; i++) {
 			if (keys[i] && !prev_keys[i]) {
 				ESP_LOGI(tag, "Pluck string %i", transpose + i);
 				synth_string_pluck(string + transpose + i, note_volume);
+			}
+			else if (!keys[i] && prev_keys[i]) {
+				ESP_LOGI(tag, "Dampen string %i", transpose + i);
+				string[transpose + i].decay = 0.985;
 			}
 		}
 
@@ -443,7 +454,7 @@ void app_main(void)
 			for (const char *c = song0; *c; c++) {
 				if ((*c) != ' ') {
 					int note = strchrnul(notes, *c) - notes;
-					synth_string_pluck(string + transpose + note, note_volume);
+					synth_string_pluck_shortly(string + transpose + note, note_volume);
 				}
 				vTaskDelay(pdMS_TO_TICKS(333));
 			}
