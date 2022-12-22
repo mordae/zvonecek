@@ -54,194 +54,167 @@ static const char *tag = "main";
 static struct synth_string string[NOTE_COUNT] = {
 	{
 		.delay = CONFIG_SAMPLE_FREQ / NOTE_C4,
-		.decay = 0.99,
-		.feedback = 0.90,
+		.feedback = 0.80,
 	},
 	{
 		.delay = CONFIG_SAMPLE_FREQ / NOTE_C4s,
-		.decay = 0.99,
-		.feedback = 0.90,
+		.feedback = 0.80,
 	},
 	{
 		.delay = CONFIG_SAMPLE_FREQ / NOTE_D4,
-		.decay = 0.99,
-		.feedback = 0.90,
+		.feedback = 0.80,
 	},
 	{
 		.delay = CONFIG_SAMPLE_FREQ / NOTE_D4s,
-		.decay = 0.99,
-		.feedback = 0.90,
+		.feedback = 0.80,
 	},
 	{
 		.delay = CONFIG_SAMPLE_FREQ / NOTE_E4,
-		.decay = 0.99,
-		.feedback = 0.90,
+		.feedback = 0.80,
 	},
 	{
 		.delay = CONFIG_SAMPLE_FREQ / NOTE_F4,
-		.decay = 0.99,
-		.feedback = 0.90,
+		.feedback = 0.80,
 	},
 	{
 		.delay = CONFIG_SAMPLE_FREQ / NOTE_F4s,
-		.decay = 0.99,
-		.feedback = 0.90,
+		.feedback = 0.80,
 	},
 	{
 		.delay = CONFIG_SAMPLE_FREQ / NOTE_G4,
-		.decay = 0.99,
-		.feedback = 0.90,
+		.feedback = 0.80,
 	},
 	{
 		.delay = CONFIG_SAMPLE_FREQ / NOTE_G4s,
-		.decay = 0.99,
-		.feedback = 0.90,
+		.feedback = 0.80,
 	},
 	{
 		.delay = CONFIG_SAMPLE_FREQ / NOTE_A4,
-		.decay = 0.99,
-		.feedback = 0.90,
+		.feedback = 0.80,
 	},
 	{
 		.delay = CONFIG_SAMPLE_FREQ / NOTE_A4s,
-		.decay = 0.99,
-		.feedback = 0.90,
+		.feedback = 0.80,
 	},
 	{
 		.delay = CONFIG_SAMPLE_FREQ / NOTE_H4,
-		.decay = 0.99,
-		.feedback = 0.90,
+		.feedback = 0.80,
 	},
 	{
 		.delay = CONFIG_SAMPLE_FREQ / (NOTE_C4 * 2),
-		.decay = 0.99,
-		.feedback = 0.90,
+		.feedback = 0.80,
 	},
 	{
 		.delay = CONFIG_SAMPLE_FREQ / (NOTE_C4s * 2),
-		.decay = 0.99,
-		.feedback = 0.90,
+		.feedback = 0.80,
 	},
 	{
 		.delay = CONFIG_SAMPLE_FREQ / (NOTE_D4 * 2),
-		.decay = 0.99,
-		.feedback = 0.90,
+		.feedback = 0.80,
 	},
 	{
 		.delay = CONFIG_SAMPLE_FREQ / (NOTE_D4s * 2),
-		.decay = 0.99,
-		.feedback = 0.90,
+		.feedback = 0.80,
 	},
 	{
 		.delay = CONFIG_SAMPLE_FREQ / (NOTE_E4 * 2),
-		.decay = 0.99,
-		.feedback = 0.90,
+		.feedback = 0.80,
 	},
 	{
 		.delay = CONFIG_SAMPLE_FREQ / (NOTE_F4 * 2),
-		.decay = 0.99,
-		.feedback = 0.90,
+		.feedback = 0.80,
 	},
 	{
 		.delay = CONFIG_SAMPLE_FREQ / (NOTE_F4s * 2),
-		.decay = 0.99,
-		.feedback = 0.90,
+		.feedback = 0.80,
 	},
 	{
 		.delay = CONFIG_SAMPLE_FREQ / (NOTE_G4 * 2),
-		.decay = 0.99,
-		.feedback = 0.90,
+		.feedback = 0.80,
 	},
 	{
 		.delay = CONFIG_SAMPLE_FREQ / (NOTE_G4s * 2),
-		.decay = 0.99,
-		.feedback = 0.90,
+		.feedback = 0.80,
 	},
 	{
 		.delay = CONFIG_SAMPLE_FREQ / (NOTE_A4 * 2),
-		.decay = 0.99,
-		.feedback = 0.90,
+		.feedback = 0.80,
 	},
 	{
 		.delay = CONFIG_SAMPLE_FREQ / (NOTE_A4s * 2),
-		.decay = 0.99,
-		.feedback = 0.90,
+		.feedback = 0.80,
 	},
 	{
 		.delay = CONFIG_SAMPLE_FREQ / (NOTE_H4 * 2),
-		.decay = 0.99,
-		.feedback = 0.90,
+		.feedback = 0.80,
 	},
 	{
 		.delay = CONFIG_SAMPLE_FREQ / (NOTE_C4 * 4),
-		.decay = 0.99,
-		.feedback = 0.90,
+		.feedback = 0.80,
 	},
 	{
 		.delay = CONFIG_SAMPLE_FREQ / (NOTE_C4s * 4),
-		.decay = 0.99,
-		.feedback = 0.90,
+		.feedback = 0.80,
 	},
 	{
 		.delay = CONFIG_SAMPLE_FREQ / (NOTE_D4 * 4),
-		.decay = 0.99,
-		.feedback = 0.90,
+		.feedback = 0.80,
 	},
 	{
 		.delay = CONFIG_SAMPLE_FREQ / (NOTE_D4s * 4),
-		.decay = 0.99,
-		.feedback = 0.90,
+		.feedback = 0.80,
 	},
 	{
 		.delay = CONFIG_SAMPLE_FREQ / (NOTE_E4 * 4),
-		.decay = 0.99,
-		.feedback = 0.90,
+		.feedback = 0.80,
 	},
 	{
 		.delay = CONFIG_SAMPLE_FREQ / (NOTE_F4 * 4),
-		.decay = 0.99,
-		.feedback = 0.90,
+		.feedback = 0.80,
 	},
 	{
 		.delay = CONFIG_SAMPLE_FREQ / (NOTE_F4s * 4),
-		.decay = 0.99,
-		.feedback = 0.90,
+		.feedback = 0.80,
 	},
 	{
 		.delay = CONFIG_SAMPLE_FREQ / (NOTE_G4 * 4),
-		.decay = 0.99,
-		.feedback = 0.90,
+		.feedback = 0.80,
 	},
 	{
 		.delay = CONFIG_SAMPLE_FREQ / (NOTE_G4s * 4),
-		.decay = 0.99,
-		.feedback = 0.90,
+		.feedback = 0.80,
 	},
 	{
 		.delay = CONFIG_SAMPLE_FREQ / (NOTE_A4 * 4),
-		.decay = 0.99,
-		.feedback = 0.90,
+		.feedback = 0.80,
 	},
 	{
 		.delay = CONFIG_SAMPLE_FREQ / (NOTE_A4s * 4),
-		.decay = 0.99,
-		.feedback = 0.90,
+		.feedback = 0.80,
 	},
 	{
 		.delay = CONFIG_SAMPLE_FREQ / (NOTE_H4 * 4),
-		.decay = 0.99,
-		.feedback = 0.90,
+		.feedback = 0.80,
 	},
 	{
 		.delay = CONFIG_SAMPLE_FREQ / (NOTE_C4 * 8),
-		.decay = 0.99,
-		.feedback = 0.90,
+		.feedback = 0.80,
 	},
 };
 
 
+
+/* Mapping of characters to notes for the songs below. */
+static const char note_table[] = "CcDdEFfGgAaH";
+
 /* Běží liška k táboru */
 static const char song0[] = "CECEG GGCECED DDCEGEDDE CEGEDDC";
+
+/* Skákal pes přes oves */
+static const char song1[] = "GGE GGE GGAGG F FFD FFD FFGFF E";
+
+/* Kočka leze dírou */
+static const char song2[] = "CDEFG G A A G  A A G  FFFFE E D D G  FFFFE E D D C";
 
 
 #define BUFFER_SIZE 64
@@ -305,6 +278,69 @@ static void playback_task(void *arg)
 		ESP_ERROR_CHECK(i2s_channel_write(snd, buffer, total, &written, portMAX_DELAY));
 		assert (total == written);
 	}
+}
+
+
+static void led_reset()
+{
+	for (int i = 0; i < 8; i++)
+		ESP_ERROR_CHECK(led_strip_set_pixel(led, i, 0, 0, 0));
+}
+
+
+static void led_note(int note)
+{
+	led_reset();
+
+	if (0 == note) {
+		ESP_ERROR_CHECK(led_strip_set_pixel(led, 0, 31, 31, 31));
+	} else if (1 == note) {
+		ESP_ERROR_CHECK(led_strip_set_pixel(led, 0, 63, 0, 0));
+	} else if (2 == note) {
+		ESP_ERROR_CHECK(led_strip_set_pixel(led, 1, 31, 31, 31));
+	} else if (3 == note) {
+		ESP_ERROR_CHECK(led_strip_set_pixel(led, 1, 63, 0, 0));
+	} else if (4 == note) {
+		ESP_ERROR_CHECK(led_strip_set_pixel(led, 2, 31, 31, 31));
+	} else if (5 == note) {
+		ESP_ERROR_CHECK(led_strip_set_pixel(led, 3, 31, 31, 31));
+	} else if (6 == note) {
+		ESP_ERROR_CHECK(led_strip_set_pixel(led, 3, 63, 0, 0));
+	} else if (7 == note) {
+		ESP_ERROR_CHECK(led_strip_set_pixel(led, 4, 31, 31, 31));
+	} else if (8 == note) {
+		ESP_ERROR_CHECK(led_strip_set_pixel(led, 4, 63, 0, 0));
+	} else if (9 == note) {
+		ESP_ERROR_CHECK(led_strip_set_pixel(led, 5, 31, 31, 31));
+	} else if (10 == note) {
+		ESP_ERROR_CHECK(led_strip_set_pixel(led, 5, 63, 0, 0));
+	} else if (11 == note) {
+		ESP_ERROR_CHECK(led_strip_set_pixel(led, 6, 31, 31, 31));
+	} else if (12 == note) {
+		ESP_ERROR_CHECK(led_strip_set_pixel(led, 7, 31, 31, 31));
+	}
+
+	ESP_ERROR_CHECK(led_strip_refresh(led));
+}
+
+
+static void play_song(const char *song)
+{
+	for (const char *c = song; *c; c++) {
+		if ((*c) == ' ') {
+			led_note(-1);
+			vTaskDelay(pdMS_TO_TICKS(300));
+		} else {
+			int note = strchrnul(note_table, *c) - note_table;
+			led_note(note);
+			synth_string_pluck_shortly(string + transpose + note, note_volume);
+			vTaskDelay(pdMS_TO_TICKS(200));
+			led_note(-1);
+			vTaskDelay(pdMS_TO_TICKS(100));
+		}
+	}
+
+	led_note(-1);
 }
 
 
@@ -393,14 +429,7 @@ void app_main(void)
 	ESP_ERROR_CHECK(gpio_set_level(CONFIG_ROW2_GPIO, 1));
 	ESP_ERROR_CHECK(gpio_set_level(CONFIG_ROW3_GPIO, 1));
 
-	ESP_ERROR_CHECK(led_strip_set_pixel(led, 0, 7, 7, 7));
-	ESP_ERROR_CHECK(led_strip_set_pixel(led, 1, 7, 7, 7));
-	ESP_ERROR_CHECK(led_strip_set_pixel(led, 2, 7, 7, 7));
-	ESP_ERROR_CHECK(led_strip_set_pixel(led, 3, 7, 7, 7));
-	ESP_ERROR_CHECK(led_strip_set_pixel(led, 4, 7, 7, 7));
-	ESP_ERROR_CHECK(led_strip_set_pixel(led, 5, 7, 7, 7));
-	ESP_ERROR_CHECK(led_strip_set_pixel(led, 6, 7, 7, 7));
-	ESP_ERROR_CHECK(led_strip_set_pixel(led, 7, 7, 7, 7));
+	led_reset();
 	ESP_ERROR_CHECK(led_strip_refresh(led));
 
 	while (1) {
@@ -440,8 +469,14 @@ void app_main(void)
 
 		int total_pressed = 0;
 
-		for (int i = 0; i < NUM_KEYS; i++)
+		for (int i = 0; i < NUM_KEYS; i++) {
+			if (keys[i] && !prev_keys[i]) {
+				ESP_LOGI(tag, "Key %i down", i);
+			} else if (!keys[i] && prev_keys[i]) {
+				ESP_LOGI(tag, "Key %i up", i);
+			}
 			total_pressed += keys[i];
+		}
 
 		for (int i = 0; i < KEYBOARD; i++) {
 			if (keys[i] && !prev_keys[i]) {
@@ -455,22 +490,15 @@ void app_main(void)
 		}
 
 		if (keys[13] && !prev_keys[13] && 1 == total_pressed) {
-			const char notes[] = "CcDdEFfGgAaH";
-			for (const char *c = song0; *c; c++) {
-				if ((*c) != ' ') {
-					int note = strchrnul(notes, *c) - notes;
-					synth_string_pluck_shortly(string + transpose + note, note_volume);
-				}
-				vTaskDelay(pdMS_TO_TICKS(333));
-			}
+			play_song(song0);
 		}
 
-		if (keys[14] && !prev_keys[14]) {
-			/* free */
+		if (keys[14] && !prev_keys[14] && 1 == total_pressed) {
+			play_song(song1);
 		}
 
-		if (keys[15] && !prev_keys[15]) {
-			/* free */
+		if (keys[15] && !prev_keys[15] && 1 == total_pressed) {
+			play_song(song2);
 		}
 
 		if (keys[16] && !prev_keys[16]) {
