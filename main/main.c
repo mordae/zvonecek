@@ -206,7 +206,10 @@ static struct synth_string string[NOTE_COUNT] = {
 
 
 /* Mapping of characters to notes for the songs below. */
-static const char note_table[] = "CcDdEFfGgAaH";
+static const char note_table[] = "CcDdEFfGgAaH+";
+
+/* Power on song. */
+static const char intro[] = "gGgGFC CFAAG F";
 
 /* Běží liška k táboru */
 static const char song0[] = "CECEG GGCECED DDCEGEDDE CEGEDDC";
@@ -325,19 +328,19 @@ static void led_note(int note)
 }
 
 
-static void play_song(const char *song)
+static void play_song(const char *song, float tempo)
 {
 	for (const char *c = song; *c; c++) {
 		if ((*c) == ' ') {
 			led_note(-1);
-			vTaskDelay(pdMS_TO_TICKS(300));
+			vTaskDelay(pdMS_TO_TICKS(300 / tempo));
 		} else {
 			int note = strchrnul(note_table, *c) - note_table;
 			led_note(note);
 			synth_string_pluck_shortly(string + transpose + note, note_volume);
-			vTaskDelay(pdMS_TO_TICKS(200));
+			vTaskDelay(pdMS_TO_TICKS(200 / tempo));
 			led_note(-1);
-			vTaskDelay(pdMS_TO_TICKS(100));
+			vTaskDelay(pdMS_TO_TICKS(100 / tempo));
 		}
 	}
 
@@ -436,6 +439,8 @@ void app_main(void)
 	led_reset();
 	ESP_ERROR_CHECK(led_strip_refresh(led));
 
+	play_song(intro, 2);
+
 	while (1) {
 		ESP_ERROR_CHECK(gpio_set_level(CONFIG_ROW1_GPIO, 0));
 		vTaskDelay(1);
@@ -494,15 +499,15 @@ void app_main(void)
 		}
 
 		if (keys[13] && !prev_keys[13] && 1 == total_pressed) {
-			play_song(song0);
+			play_song(song0, 1);
 		}
 
 		if (keys[14] && !prev_keys[14] && 1 == total_pressed) {
-			play_song(song1);
+			play_song(song1, 1);
 		}
 
 		if (keys[15] && !prev_keys[15] && 1 == total_pressed) {
-			play_song(song2);
+			play_song(song2, 1);
 		}
 
 		if (keys[16] && !prev_keys[16]) {
