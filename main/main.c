@@ -297,31 +297,31 @@ static void led_note(int note)
 	led_reset();
 
 	if (0 == note) {
-		ESP_ERROR_CHECK(led_strip_set_pixel(led, 0, 31, 31, 31));
+		ESP_ERROR_CHECK(led_strip_set_pixel(led, 0, 63, 63, 63));
 	} else if (1 == note) {
-		ESP_ERROR_CHECK(led_strip_set_pixel(led, 0, 63, 0, 0));
+		ESP_ERROR_CHECK(led_strip_set_pixel(led, 0, 127, 0, 31));
 	} else if (2 == note) {
-		ESP_ERROR_CHECK(led_strip_set_pixel(led, 1, 31, 31, 31));
+		ESP_ERROR_CHECK(led_strip_set_pixel(led, 1, 63, 63, 63));
 	} else if (3 == note) {
-		ESP_ERROR_CHECK(led_strip_set_pixel(led, 1, 63, 0, 0));
+		ESP_ERROR_CHECK(led_strip_set_pixel(led, 1, 127, 0, 31));
 	} else if (4 == note) {
-		ESP_ERROR_CHECK(led_strip_set_pixel(led, 2, 31, 31, 31));
+		ESP_ERROR_CHECK(led_strip_set_pixel(led, 2, 63, 63, 63));
 	} else if (5 == note) {
-		ESP_ERROR_CHECK(led_strip_set_pixel(led, 3, 31, 31, 31));
+		ESP_ERROR_CHECK(led_strip_set_pixel(led, 3, 63, 63, 63));
 	} else if (6 == note) {
-		ESP_ERROR_CHECK(led_strip_set_pixel(led, 3, 63, 0, 0));
+		ESP_ERROR_CHECK(led_strip_set_pixel(led, 3, 127, 0, 31));
 	} else if (7 == note) {
-		ESP_ERROR_CHECK(led_strip_set_pixel(led, 4, 31, 31, 31));
+		ESP_ERROR_CHECK(led_strip_set_pixel(led, 4, 63, 63, 63));
 	} else if (8 == note) {
-		ESP_ERROR_CHECK(led_strip_set_pixel(led, 4, 63, 0, 0));
+		ESP_ERROR_CHECK(led_strip_set_pixel(led, 4, 127, 0, 31));
 	} else if (9 == note) {
-		ESP_ERROR_CHECK(led_strip_set_pixel(led, 5, 31, 31, 31));
+		ESP_ERROR_CHECK(led_strip_set_pixel(led, 5, 63, 63, 63));
 	} else if (10 == note) {
-		ESP_ERROR_CHECK(led_strip_set_pixel(led, 5, 63, 0, 0));
+		ESP_ERROR_CHECK(led_strip_set_pixel(led, 5, 127, 0, 31));
 	} else if (11 == note) {
-		ESP_ERROR_CHECK(led_strip_set_pixel(led, 6, 31, 31, 31));
+		ESP_ERROR_CHECK(led_strip_set_pixel(led, 6, 63, 63, 63));
 	} else if (12 == note) {
-		ESP_ERROR_CHECK(led_strip_set_pixel(led, 7, 31, 31, 31));
+		ESP_ERROR_CHECK(led_strip_set_pixel(led, 7, 63, 63, 63));
 	}
 
 	ESP_ERROR_CHECK(led_strip_refresh(led));
