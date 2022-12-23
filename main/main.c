@@ -26,6 +26,7 @@
 #include "driver/i2s_std.h"
 #include "driver/gpio.h"
 #include "esp_log.h"
+#include "esp_random.h"
 
 #include <math.h>
 #include <string.h>
@@ -420,6 +421,9 @@ void app_main(void)
 
 	ESP_ERROR_CHECK(i2s_channel_init_std_mode(snd, &std_cfg));
 	ESP_ERROR_CHECK(i2s_channel_enable(snd));
+
+	ESP_LOGI(tag, "Seed the random number generator...");
+	srand(esp_random());
 
 	ESP_LOGI(tag, "Start the playback task...");
 	xTaskCreate(playback_task, "playback", 4096, NULL, 0, NULL);
