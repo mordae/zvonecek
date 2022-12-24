@@ -16,21 +16,18 @@
 
 #pragma once
 
-#include <stdint.h>
-#include <stdlib.h>
+#include "synth.h"
 
-#if !defined(SYNTH_MAX_DELAY)
-# define SYNTH_MAX_DELAY 1000
-#endif
+#define NUM_STRINGS 13
 
-struct synth_string {
-	size_t delay, offset;
-	float decay, cur_decay;
-	float feedback, cur_feedback;
-	int16_t buffer[SYNTH_MAX_DELAY];
-};
+/* Currently active set of <NUM_STRINGS> strings. */
+extern struct synth_string *strings_current;
 
-void synth_string_pluck(struct synth_string *ss, int16_t strength);
-void synth_string_pluck_shortly(struct synth_string *ss, int16_t strength);
-void synth_string_dampen(struct synth_string *ss);
-void synth_string_read(struct synth_string *ss, int16_t *out, size_t len);
+/* First set of piano strings. */
+extern struct synth_string strings_piano1[NUM_STRINGS];
+
+/* Second set of piano strings. */
+extern struct synth_string strings_piano2[NUM_STRINGS];
+
+/* Guitar strings. */
+extern struct synth_string strings_guitar[NUM_STRINGS];

@@ -25,7 +25,9 @@
 void synth_string_pluck(struct synth_string *ss, int16_t strength)
 {
 	ss->offset = 0;
-	ss->decay = 0.999;
+
+	ss->cur_decay = ss->decay;
+	ss->cur_feedback = ss->feedback;
 
 	for (int i = 0; i < ss->delay; i++)
 		ss->buffer[i] = strength * 1.0 * rand() / RAND_MAX;
@@ -35,7 +37,14 @@ void synth_string_pluck(struct synth_string *ss, int16_t strength)
 void synth_string_pluck_shortly(struct synth_string *ss, int16_t strength)
 {
 	synth_string_pluck(ss, strength);
-	ss->decay = 0.99;
+	ss->cur_decay = ss->decay * 0.99;
+	ss->cur_feedback = ss->feedback;
+}
+
+
+void synth_string_dampen(struct synth_string *ss)
+{
+	ss->cur_decay = ss->cur_decay * 0.99;
 }
 
 
@@ -47,13 +56,13 @@ inline static int wrap(int a, int max_)
 
 void synth_string_read(struct synth_string *ss, int16_t *out, size_t len)
 {
-	float fb = ss->feedback;
-	float nfb = (1.0 - ss->feedback) * 0.5;
+	float fb = ss->cur_feedback;
+	float nfb = (1.0 - ss->cur_feedback) * 0.5;
 
 	int offset = ss->offset;
 	int delay = ss->delay;
 
-	float decay = 1.0 - (1.0 - ss->decay) * delay * 440.0 / CONFIG_SAMPLE_FREQ;
+	float decay = 1.0 - (1.0 - ss->cur_decay) * delay * 440.0 / CONFIG_SAMPLE_FREQ;
 
 	for (int i = 0; i < len; i++) {
 		int this = wrap(offset + i, delay);

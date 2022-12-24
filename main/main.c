@@ -14,11 +14,13 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
+#include "led.h"
+#include "scene.h"
 #include "synth.h"
+#include "player.h"
+#include "strings.h"
 
 #include "config.h"
-
-#include "led_strip.h"
 
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
@@ -29,215 +31,27 @@
 #include "esp_random.h"
 
 #include <math.h>
-#include <string.h>
 #include <stdlib.h>
 
 
 static const char *tag = "main";
 
-#define NOTE_COUNT (3 * 12 + 1)
-#define KEYBOARD 13
-
-#define NOTE_C4  261.6256
-#define NOTE_C4s 277.1826
-#define NOTE_D4  293.6648
-#define NOTE_D4s 311.1270
-#define NOTE_E4  329.6276
-#define NOTE_F4  349.2282
-#define NOTE_F4s 369.9944
-#define NOTE_G4  391.9954
-#define NOTE_G4s 415.3047
-#define NOTE_A4  440.0000
-#define NOTE_A4s 466.1638
-#define NOTE_H4  493.8833
-
-
-static struct synth_string string[NOTE_COUNT] = {
-	{
-		.delay = CONFIG_SAMPLE_FREQ / NOTE_C4,
-		.feedback = 0.80,
-	},
-	{
-		.delay = CONFIG_SAMPLE_FREQ / NOTE_C4s,
-		.feedback = 0.80,
-	},
-	{
-		.delay = CONFIG_SAMPLE_FREQ / NOTE_D4,
-		.feedback = 0.80,
-	},
-	{
-		.delay = CONFIG_SAMPLE_FREQ / NOTE_D4s,
-		.feedback = 0.80,
-	},
-	{
-		.delay = CONFIG_SAMPLE_FREQ / NOTE_E4,
-		.feedback = 0.80,
-	},
-	{
-		.delay = CONFIG_SAMPLE_FREQ / NOTE_F4,
-		.feedback = 0.80,
-	},
-	{
-		.delay = CONFIG_SAMPLE_FREQ / NOTE_F4s,
-		.feedback = 0.80,
-	},
-	{
-		.delay = CONFIG_SAMPLE_FREQ / NOTE_G4,
-		.feedback = 0.80,
-	},
-	{
-		.delay = CONFIG_SAMPLE_FREQ / NOTE_G4s,
-		.feedback = 0.80,
-	},
-	{
-		.delay = CONFIG_SAMPLE_FREQ / NOTE_A4,
-		.feedback = 0.80,
-	},
-	{
-		.delay = CONFIG_SAMPLE_FREQ / NOTE_A4s,
-		.feedback = 0.80,
-	},
-	{
-		.delay = CONFIG_SAMPLE_FREQ / NOTE_H4,
-		.feedback = 0.80,
-	},
-	{
-		.delay = CONFIG_SAMPLE_FREQ / (NOTE_C4 * 2),
-		.feedback = 0.80,
-	},
-	{
-		.delay = CONFIG_SAMPLE_FREQ / (NOTE_C4s * 2),
-		.feedback = 0.80,
-	},
-	{
-		.delay = CONFIG_SAMPLE_FREQ / (NOTE_D4 * 2),
-		.feedback = 0.80,
-	},
-	{
-		.delay = CONFIG_SAMPLE_FREQ / (NOTE_D4s * 2),
-		.feedback = 0.80,
-	},
-	{
-		.delay = CONFIG_SAMPLE_FREQ / (NOTE_E4 * 2),
-		.feedback = 0.80,
-	},
-	{
-		.delay = CONFIG_SAMPLE_FREQ / (NOTE_F4 * 2),
-		.feedback = 0.80,
-	},
-	{
-		.delay = CONFIG_SAMPLE_FREQ / (NOTE_F4s * 2),
-		.feedback = 0.80,
-	},
-	{
-		.delay = CONFIG_SAMPLE_FREQ / (NOTE_G4 * 2),
-		.feedback = 0.80,
-	},
-	{
-		.delay = CONFIG_SAMPLE_FREQ / (NOTE_G4s * 2),
-		.feedback = 0.80,
-	},
-	{
-		.delay = CONFIG_SAMPLE_FREQ / (NOTE_A4 * 2),
-		.feedback = 0.80,
-	},
-	{
-		.delay = CONFIG_SAMPLE_FREQ / (NOTE_A4s * 2),
-		.feedback = 0.80,
-	},
-	{
-		.delay = CONFIG_SAMPLE_FREQ / (NOTE_H4 * 2),
-		.feedback = 0.80,
-	},
-	{
-		.delay = CONFIG_SAMPLE_FREQ / (NOTE_C4 * 4),
-		.feedback = 0.80,
-	},
-	{
-		.delay = CONFIG_SAMPLE_FREQ / (NOTE_C4s * 4),
-		.feedback = 0.80,
-	},
-	{
-		.delay = CONFIG_SAMPLE_FREQ / (NOTE_D4 * 4),
-		.feedback = 0.80,
-	},
-	{
-		.delay = CONFIG_SAMPLE_FREQ / (NOTE_D4s * 4),
-		.feedback = 0.80,
-	},
-	{
-		.delay = CONFIG_SAMPLE_FREQ / (NOTE_E4 * 4),
-		.feedback = 0.80,
-	},
-	{
-		.delay = CONFIG_SAMPLE_FREQ / (NOTE_F4 * 4),
-		.feedback = 0.80,
-	},
-	{
-		.delay = CONFIG_SAMPLE_FREQ / (NOTE_F4s * 4),
-		.feedback = 0.80,
-	},
-	{
-		.delay = CONFIG_SAMPLE_FREQ / (NOTE_G4 * 4),
-		.feedback = 0.80,
-	},
-	{
-		.delay = CONFIG_SAMPLE_FREQ / (NOTE_G4s * 4),
-		.feedback = 0.80,
-	},
-	{
-		.delay = CONFIG_SAMPLE_FREQ / (NOTE_A4 * 4),
-		.feedback = 0.80,
-	},
-	{
-		.delay = CONFIG_SAMPLE_FREQ / (NOTE_A4s * 4),
-		.feedback = 0.80,
-	},
-	{
-		.delay = CONFIG_SAMPLE_FREQ / (NOTE_H4 * 4),
-		.feedback = 0.80,
-	},
-	{
-		.delay = CONFIG_SAMPLE_FREQ / (NOTE_C4 * 8),
-		.feedback = 0.80,
-	},
-};
-
-
-
-/* Mapping of characters to notes for the songs below. */
-static const char note_table[] = "CcDdEFfGgAaH+";
-
-/* Power on song. */
-static const char intro[] = "gGgGFC CFAAG F";
-
-/* Běží liška k táboru */
-static const char song0[] = "CECEG GGCECED DDCEGEDDE CEGEDDC";
-
-/* Skákal pes přes oves */
-static const char song1[] = "GGE GGE GGAGG F FFD FFD FFGFF E";
-
-/* Kočka leze dírou */
-static const char song2[] = "CDEFG G A A G  A A G  FFFFE E D D G  FFFFE E D D C";
-
 
 #define BUFFER_SIZE 64
 static int16_t buffer[BUFFER_SIZE];
 
-/* To transpose to higher octaves. */
-static int transpose = 12;
-
-
-static led_strip_handle_t led;
 static i2s_chan_handle_t snd;
 
+/* Depends on the volume slide switch. */
+int16_t max_volume = 16000;
+int16_t base_volume = 11500;
 
-/* These change depending on the volume slider. */
-static int16_t max_volume = 16000;
-static int16_t note_volume = 11500;
+/* To transpose to higher octaves. */
+extern int transpose;
 
 
 /* Keys, organized to three rows of 6 keys each. */
+#define NUM_NOTE_KEYS 13
 #define NUM_KEYS 18
 static bool keys[NUM_KEYS] = {false};
 static bool prev_keys[NUM_KEYS] = {false};
@@ -253,8 +67,8 @@ static void playback_task(void *arg)
 		 * Add samples from all strings to the buffer.
 		 * Most are going to be zeroes.
 		 */
-		for (int i = 0; i < KEYBOARD; i++)
-			synth_string_read(string + transpose + i, buffer, BUFFER_SIZE);
+		for (int i = 0; i < NUM_NOTE_KEYS; i++)
+			synth_string_read(&strings_current[i], buffer, BUFFER_SIZE);
 
 		/*
 		 * Duck volume of the whole buffer if it would exceed the
@@ -285,77 +99,10 @@ static void playback_task(void *arg)
 }
 
 
-static void led_reset()
-{
-	for (int i = 0; i < 8; i++)
-		ESP_ERROR_CHECK(led_strip_set_pixel(led, i, 0, 0, 0));
-}
-
-
-static void led_note(int note)
-{
-	led_reset();
-
-	if (0 == note) {
-		ESP_ERROR_CHECK(led_strip_set_pixel(led, 0, 63, 63, 63));
-	} else if (1 == note) {
-		ESP_ERROR_CHECK(led_strip_set_pixel(led, 0, 127, 0, 31));
-	} else if (2 == note) {
-		ESP_ERROR_CHECK(led_strip_set_pixel(led, 1, 63, 63, 63));
-	} else if (3 == note) {
-		ESP_ERROR_CHECK(led_strip_set_pixel(led, 1, 127, 0, 31));
-	} else if (4 == note) {
-		ESP_ERROR_CHECK(led_strip_set_pixel(led, 2, 63, 63, 63));
-	} else if (5 == note) {
-		ESP_ERROR_CHECK(led_strip_set_pixel(led, 3, 63, 63, 63));
-	} else if (6 == note) {
-		ESP_ERROR_CHECK(led_strip_set_pixel(led, 3, 127, 0, 31));
-	} else if (7 == note) {
-		ESP_ERROR_CHECK(led_strip_set_pixel(led, 4, 63, 63, 63));
-	} else if (8 == note) {
-		ESP_ERROR_CHECK(led_strip_set_pixel(led, 4, 127, 0, 31));
-	} else if (9 == note) {
-		ESP_ERROR_CHECK(led_strip_set_pixel(led, 5, 63, 63, 63));
-	} else if (10 == note) {
-		ESP_ERROR_CHECK(led_strip_set_pixel(led, 5, 127, 0, 31));
-	} else if (11 == note) {
-		ESP_ERROR_CHECK(led_strip_set_pixel(led, 6, 63, 63, 63));
-	} else if (12 == note) {
-		ESP_ERROR_CHECK(led_strip_set_pixel(led, 7, 63, 63, 63));
-	}
-
-	ESP_ERROR_CHECK(led_strip_refresh(led));
-}
-
-
-static void play_song(const char *song, float tempo)
-{
-	for (const char *c = song; *c; c++) {
-		if ((*c) == ' ') {
-			led_note(-1);
-			vTaskDelay(pdMS_TO_TICKS(300 / tempo));
-		} else {
-			int note = strchrnul(note_table, *c) - note_table;
-			led_note(note);
-			synth_string_pluck_shortly(string + transpose + note, note_volume);
-			vTaskDelay(pdMS_TO_TICKS(200 / tempo));
-			led_note(-1);
-			vTaskDelay(pdMS_TO_TICKS(100 / tempo));
-		}
-	}
-
-	led_note(-1);
-}
-
-
 void app_main(void)
 {
 	ESP_LOGI(tag, "Configure LED...");
-	led_strip_config_t config = {
-		.strip_gpio_num = CONFIG_LED_GPIO,
-		.max_leds = 8,
-	};
-	ESP_ERROR_CHECK(led_strip_new_rmt_device(&config, &led));
+	led_init(CONFIG_LED_GPIO);
 
 	ESP_LOGI(tag, "Detect volume level...");
 	gpio_config_t gpio_vol = {
@@ -371,7 +118,7 @@ void app_main(void)
 	} else {
 		ESP_LOGI(tag, "Volume: low");
 		max_volume *= 0.5;
-		note_volume *= 0.5;
+		base_volume *= 0.5;
 	}
 
 	ESP_LOGI(tag, "Configure keys...");
@@ -431,15 +178,17 @@ void app_main(void)
 	ESP_LOGI(tag, "Start the playback task...");
 	xTaskCreate(playback_task, "playback", 4096, NULL, 0, NULL);
 
-	ESP_LOGI(tag, "Start demonstration...");
+	ESP_LOGI(tag, "Initialize scenes...");
+	Keyboard.on_init();
+	Learning.on_init();
+
+	ESP_LOGI(tag, "Start the Keyboard scene...");
+	scene_push(&Keyboard, NULL);
+
+	ESP_LOGI(tag, "Begin scanning keys...");
 	ESP_ERROR_CHECK(gpio_set_level(CONFIG_ROW1_GPIO, 1));
 	ESP_ERROR_CHECK(gpio_set_level(CONFIG_ROW2_GPIO, 1));
 	ESP_ERROR_CHECK(gpio_set_level(CONFIG_ROW3_GPIO, 1));
-
-	led_reset();
-	ESP_ERROR_CHECK(led_strip_refresh(led));
-
-	play_song(intro, 2);
 
 	while (1) {
 		ESP_ERROR_CHECK(gpio_set_level(CONFIG_ROW1_GPIO, 0));
@@ -487,68 +236,20 @@ void app_main(void)
 			total_pressed += keys[i];
 		}
 
-		for (int i = 0; i < KEYBOARD; i++) {
+		for (int i = 0; i < NUM_KEYS; i++) {
 			if (keys[i] && !prev_keys[i]) {
-				ESP_LOGI(tag, "Pluck string %i", transpose + i);
-				synth_string_pluck(string + transpose + i, note_volume);
+				if ((i < NUM_NOTE_KEYS) || (1 == total_pressed))
+					(void)scene_handle_key_pressed(i);
 			}
 			else if (!keys[i] && prev_keys[i]) {
-				ESP_LOGI(tag, "Dampen string %i", transpose + i);
-				string[transpose + i].decay = 0.985;
-			}
-		}
-
-		if (keys[13] && !prev_keys[13] && 1 == total_pressed) {
-			play_song(song0, 1);
-		}
-
-		if (keys[14] && !prev_keys[14] && 1 == total_pressed) {
-			play_song(song1, 1);
-		}
-
-		if (keys[15] && !prev_keys[15] && 1 == total_pressed) {
-			play_song(song2, 1);
-		}
-
-		if (keys[16] && !prev_keys[16]) {
-			/* free */
-		}
-
-		if (keys[17] && 2 == total_pressed) {
-			if (keys[0] && !prev_keys[0]) {
-				for (int i = 0; i < NUM_KEYS; i++) {
-					string[i].decay -= 0.001;
-				}
-				ESP_LOGI(tag, "decay = %f", string[0].decay);
-			} else if (keys[2] && !prev_keys[2]) {
-				for (int i = 0; i < NUM_KEYS; i++) {
-					string[i].decay += 0.001;
-				}
-				ESP_LOGI(tag, "decay = %f", string[0].decay);
-			} else if (keys[4] && !prev_keys[4]) {
-				for (int i = 0; i < NUM_KEYS; i++) {
-					string[i].feedback -= 0.01;
-				}
-				ESP_LOGI(tag, "feedback = %f", string[0].feedback);
-			} else if (keys[5] && !prev_keys[5]) {
-				for (int i = 0; i < NUM_KEYS; i++) {
-					string[i].feedback += 0.01;
-				}
-				ESP_LOGI(tag, "feedback = %f", string[0].feedback);
-			} else if (keys[7] && !prev_keys[7]) {
-				if (transpose == 0)
-					transpose = 12;
-				else if (transpose == 12)
-					transpose = 24;
-				else if (transpose == 24)
-					transpose = 0;
-				ESP_LOGI(tag, "transpose = %i", transpose);
+				(void)scene_handle_key_released(i);
 			}
 		}
 
 		for (int i = 0; i < NUM_KEYS; i++)
 			prev_keys[i] = keys[i];
 
-		vTaskDelay(pdMS_TO_TICKS(50));
+		unsigned sleep = scene_idle(50);
+		vTaskDelay(pdMS_TO_TICKS(sleep));
 	}
 }

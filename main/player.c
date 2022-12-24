@@ -14,23 +14,49 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-#pragma once
+#include "player.h"
+#include "synth.h"
+#include "led.h"
 
-#include <stdint.h>
-#include <stdlib.h>
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
 
-#if !defined(SYNTH_MAX_DELAY)
-# define SYNTH_MAX_DELAY 1000
-#endif
+#include <string.h>
 
-struct synth_string {
-	size_t delay, offset;
-	float decay, cur_decay;
-	float feedback, cur_feedback;
-	int16_t buffer[SYNTH_MAX_DELAY];
-};
 
-void synth_string_pluck(struct synth_string *ss, int16_t strength);
-void synth_string_pluck_shortly(struct synth_string *ss, int16_t strength);
-void synth_string_dampen(struct synth_string *ss);
-void synth_string_read(struct synth_string *ss, int16_t *out, size_t len);
+static const char note_table[] = "CcDdEFfGgAaH+";
+
+
+void play_song(const char *song, float tempo, int16_t volume)
+{
+	for (const char *c = song; *c; c++) {
+		int id = note_id(*c);
+
+		if (-1 == id) {
+			led_note(-1);
+			vTaskDelay(pdMS_TO_TICKS(300 / tempo));
+		} else {
+			led_note(id);
+			synth_string_pluck_shortly(&strings_current[id], volume);
+			vTaskDelay(pdMS_TO_TICKS(200 / tempo));
+			led_note(-1);
+			vTaskDelay(pdMS_TO_TICKS(100 / tempo));
+		}
+	}
+
+	led_note(-1);
+}
+
+
+int note_id(char note)
+{
+	if (' ' == note)
+		return -1;
+
+	const char *ptr = strchr(note_table, note);
+
+	if (NULL == ptr)
+		return -1;
+
+	return ptr - note_table;
+}
