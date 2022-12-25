@@ -21,13 +21,17 @@
 #include "led.h"
 
 #include "esp_log.h"
+#include "esp_timer.h"
 
 
 static const char *tag = "keyboard";
 
 
-//static const char intro_song[] = "gGgGFC CFAAG F";
 static const char intro_song[] = "CDEFGAH+";
+static const char idle_song[] = "gGgGFC CFAAG F";
+
+
+static int64_t idle_since = 0;
 
 
 static void on_init(void)
@@ -54,11 +58,25 @@ static void on_deactivate(void)
 
 static unsigned on_idle(unsigned depth)
 {
+	int64_t now = esp_timer_get_time();
+
+	if (depth > 0) {
+		idle_since = now;
+		return 1000;
+	}
+
+	if ((now - idle_since) > (CONFIG_IDLE_TIMEOUT * 1000 * 1000)) {
+		idle_since += 10 * 1000 * 1000;
+		play_song(idle_song, 2);
+	}
+
 	return 1000;
 }
 
 static bool on_key_pressed(int key)
 {
+	idle_since = esp_timer_get_time();
+
 	if (key < NUM_STRINGS) {
 		synth_string_pluck(&strings_current[key]);
 		return true;

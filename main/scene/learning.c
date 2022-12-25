@@ -21,6 +21,7 @@
 #include "led.h"
 
 #include "esp_log.h"
+#include "esp_timer.h"
 
 #include <string.h>
 
@@ -47,6 +48,8 @@ static const char *current_song = learning_songs[0];
 
 /* What note to hit next. */
 static int next_note = 0;
+
+static int64_t idle_since = 0;
 
 
 static void advance(void)
@@ -90,6 +93,8 @@ static void on_activate(const void *arg)
 
 	current_song = arg;
 
+	ESP_LOGI(tag, "Selected song: %s", current_song);
+
 	if (current_song == learning_songs[0])
 		play_song("CCC      ", 2);
 	else if (current_song == learning_songs[1])
@@ -99,7 +104,7 @@ static void on_activate(const void *arg)
 	else if (current_song == learning_songs[3])
 		play_song("FFF      ", 2);
 
-	ESP_LOGI(tag, "Selected song: %s", current_song);
+	idle_since = esp_timer_get_time();
 }
 
 static void on_deactivate(void)
@@ -110,11 +115,21 @@ static void on_deactivate(void)
 
 static unsigned on_idle(unsigned depth)
 {
+	int64_t now = esp_timer_get_time();
+
+	if ((now - idle_since) > (CONFIG_IDLE_TIMEOUT * 1000000)) {
+		idle_since += 10 * 1000 * 1000;
+		int note = note_id(current_song[next_note]);
+		synth_string_pluck(&strings_current[note]);
+	}
+
 	return 1000;
 }
 
 static bool on_key_pressed(int key)
 {
+	idle_since = esp_timer_get_time();
+
 	if (key < NUM_STRINGS) {
 		synth_string_pluck(&strings_current[key]);
 

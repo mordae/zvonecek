@@ -1,10 +1,13 @@
 menu "Zvonecek"
-	menu "Audio"
-		config SAMPLE_FREQ
-			int "Sampling frequency"
-			default 48000
-			range 44100 96000
-	endmenu
+	config IDLE_TIMEOUT
+		int "Idle timeout (seconds)"
+		default 900
+		range 10 3600
+
+	config SAMPLE_FREQ
+		int "Sampling frequency"
+		default 48000
+		range 44100 96000
 
 	menu "GPIO Mapping"
 		config LED_GPIO
