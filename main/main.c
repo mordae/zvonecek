@@ -68,23 +68,6 @@ static void playback_task(void *arg)
 			synth_string_read(&strings_current[i], buffer, BUFFER_SIZE);
 
 		/*
-		 * Duck volume of the whole buffer if it would exceed the
-		 * maximum allowed. This is rather crude.
-		 */
-		int peak = 0;
-
-		for (int i = 0; i < BUFFER_SIZE; i++) {
-			if (abs(buffer[i]) > peak)
-				peak = abs(buffer[i]);
-		}
-
-		if (peak > max_volume) {
-			float ratio = (float)max_volume / (float)peak;
-			for (int i = 0; i < BUFFER_SIZE; i++)
-				buffer[i] *= ratio;
-		}
-
-		/*
 		 * Our buffer is small, so we should be able to emit it whole.
 		 */
 		size_t total = BUFFER_SIZE * sizeof(int16_t);
