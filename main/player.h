@@ -25,7 +25,7 @@
  * Valid notes: "CcDdEFfGgAaH+"
  * Pause: ' '
  */
-void play_song(const char *song, float tempo, int16_t volume);
+void play_song(const char *song, float tempo);
 
 
 /* Returns numerical id of note or -1. */

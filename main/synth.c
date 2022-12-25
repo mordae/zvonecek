@@ -22,7 +22,7 @@
 #include <stdlib.h>
 
 
-void synth_string_pluck(struct synth_string *ss, int16_t strength)
+void synth_string_pluck(struct synth_string *ss)
 {
 	ss->offset = 0;
 
@@ -30,13 +30,13 @@ void synth_string_pluck(struct synth_string *ss, int16_t strength)
 	ss->cur_feedback = ss->feedback;
 
 	for (int i = 0; i < ss->delay; i++)
-		ss->buffer[i] = strength * 1.0 * rand() / RAND_MAX;
+		ss->buffer[i] = INT16_MAX * 0.5 * rand() / RAND_MAX;
 }
 
 
-void synth_string_pluck_shortly(struct synth_string *ss, int16_t strength)
+void synth_string_pluck_shortly(struct synth_string *ss)
 {
-	synth_string_pluck(ss, strength);
+	synth_string_pluck(ss);
 	ss->cur_decay = ss->decay * 0.99;
 	ss->cur_feedback = ss->feedback;
 }

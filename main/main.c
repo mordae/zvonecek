@@ -46,9 +46,6 @@ static i2s_chan_handle_t snd;
 int16_t max_volume = 16000;
 int16_t base_volume = 11500;
 
-/* To transpose to higher octaves. */
-extern int transpose;
-
 
 /* Keys, organized to three rows of 6 keys each. */
 #define NUM_NOTE_KEYS 13

@@ -18,7 +18,6 @@
 #include "scene.h"
 #include "strings.h"
 #include "player.h"
-#include "main.h"
 #include "led.h"
 
 #include "esp_log.h"
@@ -38,7 +37,7 @@ static void on_init(void)
 static void on_top(void)
 {
 	ESP_LOGI(tag, "Keyboard scene now on top...");
-	play_song(intro_song, 4, base_volume);
+	play_song(intro_song, 4);
 	led_backlight();
 }
 
@@ -61,7 +60,7 @@ static unsigned on_idle(unsigned depth)
 static bool on_key_pressed(int key)
 {
 	if (key < NUM_STRINGS) {
-		synth_string_pluck(&strings_current[key], base_volume);
+		synth_string_pluck(&strings_current[key]);
 		return true;
 	}
 
@@ -93,7 +92,7 @@ static bool on_key_pressed(int key)
 		else if (strings_current == strings_guitar)
 			strings_current = strings_piano1;
 
-		synth_string_pluck(&strings_current[0], base_volume);
+		synth_string_pluck(&strings_current[0]);
 
 		return true;
 	}

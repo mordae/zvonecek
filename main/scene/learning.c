@@ -18,7 +18,6 @@
 #include "scene.h"
 #include "strings.h"
 #include "player.h"
-#include "main.h"
 #include "led.h"
 
 #include "esp_log.h"
@@ -79,7 +78,7 @@ static void on_top(void)
 
 	ESP_LOGI(tag, "Playing...");
 
-	play_song(current_song, 1, base_volume);
+	play_song(current_song, 1);
 
 	next_note = -1;
 	advance();
@@ -92,13 +91,13 @@ static void on_activate(const void *arg)
 	current_song = arg;
 
 	if (current_song == learning_songs[0])
-		play_song("CCC      ", 2, base_volume);
+		play_song("CCC      ", 2);
 	else if (current_song == learning_songs[1])
-		play_song("DDD      ", 2, base_volume);
+		play_song("DDD      ", 2);
 	else if (current_song == learning_songs[2])
-		play_song("EEE      ", 2, base_volume);
+		play_song("EEE      ", 2);
 	else if (current_song == learning_songs[3])
-		play_song("FFF      ", 2, base_volume);
+		play_song("FFF      ", 2);
 
 	ESP_LOGI(tag, "Selected song: %s", current_song);
 }
@@ -117,7 +116,7 @@ static unsigned on_idle(unsigned depth)
 static bool on_key_pressed(int key)
 {
 	if (key < NUM_STRINGS) {
-		synth_string_pluck(&strings_current[key], base_volume);
+		synth_string_pluck(&strings_current[key]);
 
 		if (key == note_id(current_song[next_note])) {
 			advance();

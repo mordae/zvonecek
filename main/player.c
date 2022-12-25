@@ -27,7 +27,7 @@
 static const char note_table[] = "CcDdEFfGgAaH+";
 
 
-void play_song(const char *song, float tempo, int16_t volume)
+void play_song(const char *song, float tempo)
 {
 	for (const char *c = song; *c; c++) {
 		int id = note_id(*c);
@@ -37,7 +37,7 @@ void play_song(const char *song, float tempo, int16_t volume)
 			vTaskDelay(pdMS_TO_TICKS(300 / tempo));
 		} else {
 			led_note(id);
-			synth_string_pluck_shortly(&strings_current[id], volume);
+			synth_string_pluck_shortly(&strings_current[id]);
 			vTaskDelay(pdMS_TO_TICKS(200 / tempo));
 			led_note(-1);
 			vTaskDelay(pdMS_TO_TICKS(100 / tempo));
