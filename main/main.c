@@ -29,6 +29,8 @@
 #include "driver/gpio.h"
 #include "esp_log.h"
 #include "esp_random.h"
+#include "esp_pm.h"
+#include "esp_rom_sys.h"
 
 #include <math.h>
 #include <stdlib.h>
@@ -37,7 +39,7 @@
 static const char *tag = "main";
 
 
-#define BUFFER_SIZE 64
+#define BUFFER_SIZE (CONFIG_SAMPLE_FREQ / 100)
 static float buffer[BUFFER_SIZE];
 static int16_t buffer_i16[BUFFER_SIZE];
 
@@ -57,6 +59,9 @@ static bool prev_keys[NUM_KEYS] = {false};
 
 static void playback_task(void *arg)
 {
+	static bool enabled = false;
+	static int idle = 0;
+
 	while (true) {
 		for (int i = 0; i < BUFFER_SIZE; i++)
 			buffer[i] = 0;
@@ -67,6 +72,10 @@ static void playback_task(void *arg)
 		 */
 		for (int i = 0; i < NUM_NOTE_KEYS; i++)
 			synth_string_read(&strings_current[i], buffer, BUFFER_SIZE);
+
+		/* Total value of samples in the last buffer. When it hits zero,
+		 * we do not output anything but rather disable the amplifier. */
+		size_t level = 0;
 
 		/*
 		 * Our buffer is small, so we should be able to emit it whole.
@@ -81,6 +90,23 @@ static void playback_task(void *arg)
 				sample = max_volume;
 
 			buffer_i16[i] = sample;
+			level += sample;
+		}
+
+		if (level && !enabled) {
+			ESP_LOGI(tag, "Enable audio...");
+			ESP_ERROR_CHECK(i2s_channel_enable(snd));
+			enabled = true;
+			idle = 0;
+		} else if (!level && enabled && (++idle >= 100)) {
+			ESP_LOGI(tag, "Disable audio...");
+			ESP_ERROR_CHECK(i2s_channel_disable(snd));
+			enabled = false;
+			vTaskDelay(pdMS_TO_TICKS(BUFFER_SIZE * 1000 / CONFIG_SAMPLE_FREQ));
+			continue;
+		} else if (!level && !enabled) {
+			vTaskDelay(pdMS_TO_TICKS(BUFFER_SIZE * 1000 / CONFIG_SAMPLE_FREQ));
+			continue;
 		}
 
 		ESP_ERROR_CHECK(i2s_channel_write(snd, buffer_i16, total, &written, portMAX_DELAY));
@@ -91,6 +117,14 @@ static void playback_task(void *arg)
 
 void app_main(void)
 {
+	ESP_LOGI(tag, "Configure power management...");
+	esp_pm_config_esp32_t pm_cfg = {
+		.min_freq_mhz = 240,
+		.max_freq_mhz = 240,
+		.light_sleep_enable = 1,
+	};
+	ESP_ERROR_CHECK(esp_pm_configure(&pm_cfg));
+
 	ESP_LOGI(tag, "Configure LED...");
 	led_init(CONFIG_LED_GPIO);
 
@@ -147,7 +181,7 @@ void app_main(void)
 	ESP_ERROR_CHECK(i2s_new_channel(&chan_cfg, &snd, NULL));
 
 	i2s_std_config_t std_cfg = {
-		.clk_cfg = I2S_STD_CLK_DEFAULT_CONFIG(48000),
+		.clk_cfg = I2S_STD_CLK_DEFAULT_CONFIG(CONFIG_SAMPLE_FREQ),
 		.slot_cfg = I2S_STD_MSB_SLOT_DEFAULT_CONFIG(I2S_DATA_BIT_WIDTH_16BIT, I2S_SLOT_MODE_MONO),
 		.gpio_cfg = {
 			.mclk = I2S_GPIO_UNUSED,
@@ -159,7 +193,6 @@ void app_main(void)
 	};
 
 	ESP_ERROR_CHECK(i2s_channel_init_std_mode(snd, &std_cfg));
-	ESP_ERROR_CHECK(i2s_channel_enable(snd));
 
 	ESP_LOGI(tag, "Seed the random number generator...");
 	srand(esp_random());
@@ -181,7 +214,7 @@ void app_main(void)
 
 	while (1) {
 		ESP_ERROR_CHECK(gpio_set_level(CONFIG_ROW1_GPIO, 0));
-		vTaskDelay(1);
+		esp_rom_delay_us(5);
 
 		keys[13] = !gpio_get_level(CONFIG_KEY1_GPIO);
 		keys[14] = !gpio_get_level(CONFIG_KEY2_GPIO);
@@ -192,7 +225,7 @@ void app_main(void)
 
 		ESP_ERROR_CHECK(gpio_set_level(CONFIG_ROW1_GPIO, 1));
 		ESP_ERROR_CHECK(gpio_set_level(CONFIG_ROW2_GPIO, 0));
-		vTaskDelay(1);
+		esp_rom_delay_us(5);
 
 		keys[ 2] = !gpio_get_level(CONFIG_KEY1_GPIO);
 		keys[ 8] = !gpio_get_level(CONFIG_KEY2_GPIO);
@@ -203,7 +236,7 @@ void app_main(void)
 
 		ESP_ERROR_CHECK(gpio_set_level(CONFIG_ROW2_GPIO, 1));
 		ESP_ERROR_CHECK(gpio_set_level(CONFIG_ROW3_GPIO, 0));
-		vTaskDelay(1);
+		esp_rom_delay_us(5);
 
 		keys[ 4] = !gpio_get_level(CONFIG_KEY1_GPIO);
 		keys[ 5] = !gpio_get_level(CONFIG_KEY2_GPIO);

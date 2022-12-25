@@ -17,4 +17,5 @@ idf_component_register(
 		driver
 		led_strip
 		nvs_flash
+		esp_pm
 )
