@@ -22,6 +22,13 @@
 #include <stdlib.h>
 
 
+inline static int16_t rand_sample(void)
+{
+	float sample = (float)rand() / (float)RAND_MAX;
+	return INT16_MAX * (sample - 0.5) * 2;
+}
+
+
 void synth_string_pluck(struct synth_string *ss)
 {
 	ss->offset = 0;
@@ -30,7 +37,7 @@ void synth_string_pluck(struct synth_string *ss)
 	ss->cur_feedback = ss->feedback;
 
 	for (int i = 0; i < ss->delay; i++)
-		ss->buffer[i] = INT16_MAX * 0.5 * rand() / RAND_MAX;
+		ss->buffer[i] = rand_sample();
 }
 
 
