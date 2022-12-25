@@ -90,6 +90,9 @@ typedef struct {
  */
 esp_err_t led_strip_new_rmt_device(const led_strip_config_t *config, led_strip_handle_t *ret_strip);
 
+esp_err_t led_strip_suspend(const led_strip_handle_t strip);
+esp_err_t led_strip_resume(const led_strip_handle_t strip);
+
 #ifdef __cplusplus
 }
 #endif

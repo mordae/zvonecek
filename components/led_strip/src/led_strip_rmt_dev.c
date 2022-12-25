@@ -110,3 +110,15 @@ err:
     }
     return ret;
 }
+
+esp_err_t led_strip_suspend(const led_strip_handle_t strip)
+{
+    led_strip_rmt_obj *rmt_strip = (void *)strip;
+    return rmt_disable(rmt_strip->rmt_chan);
+}
+
+esp_err_t led_strip_resume(const led_strip_handle_t strip)
+{
+    led_strip_rmt_obj *rmt_strip = (void *)strip;
+    return rmt_enable(rmt_strip->rmt_chan);
+}

@@ -39,7 +39,16 @@ void led_init(int gpio)
 	};
 	ESP_ERROR_CHECK(led_strip_new_rmt_device(&config, &led));
 
+	led_strip_suspend(led);
 	led_reset();
+}
+
+
+static void refresh()
+{
+	led_strip_resume(led);
+	ESP_ERROR_CHECK(led_strip_refresh(led));
+	led_strip_suspend(led);
 }
 
 
@@ -48,7 +57,7 @@ void led_reset(void)
 	for (int i = 0; i < 8; i++)
 		ESP_ERROR_CHECK(led_strip_set_pixel(led, i, 0, 0, 0));
 
-	ESP_ERROR_CHECK(led_strip_refresh(led));
+	refresh();
 }
 
 
@@ -85,7 +94,7 @@ void led_note(int note)
 		ESP_ERROR_CHECK(led_strip_set_pixel(led, 7, HALF, HALF, HALF));
 	}
 
-	ESP_ERROR_CHECK(led_strip_refresh(led));
+	refresh();
 }
 
 
@@ -94,5 +103,5 @@ void led_backlight(void)
 	for (int i = 0; i < 8; i++)
 		ESP_ERROR_CHECK(led_strip_set_pixel(led, i, BACK, BACK, BACK));
 
-	ESP_ERROR_CHECK(led_strip_refresh(led));
+	refresh();
 }
