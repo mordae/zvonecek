@@ -38,13 +38,14 @@ static const char *tag = "main";
 
 
 #define BUFFER_SIZE 64
-static int16_t buffer[BUFFER_SIZE];
+static float buffer[BUFFER_SIZE];
+static int16_t buffer_i16[BUFFER_SIZE];
 
 static i2s_chan_handle_t snd;
 
 /* Depends on the volume slide switch. */
-int16_t max_volume = 16000;
-int16_t base_volume = 11500;
+float max_volume = INT16_MAX;
+float volume = 0.35;
 
 
 /* Keys, organized to three rows of 6 keys each. */
@@ -73,7 +74,16 @@ static void playback_task(void *arg)
 		size_t total = BUFFER_SIZE * sizeof(int16_t);
 		size_t written = 0;
 
-		ESP_ERROR_CHECK(i2s_channel_write(snd, buffer, total, &written, portMAX_DELAY));
+		for (int i = 0; i < BUFFER_SIZE; i++) {
+			float sample = buffer[i] * volume;
+
+			if (sample > max_volume)
+				sample = max_volume;
+
+			buffer_i16[i] = sample;
+		}
+
+		ESP_ERROR_CHECK(i2s_channel_write(snd, buffer_i16, total, &written, portMAX_DELAY));
 		assert (total == written);
 	}
 }
@@ -97,8 +107,7 @@ void app_main(void)
 		ESP_LOGI(tag, "Volume: high");
 	} else {
 		ESP_LOGI(tag, "Volume: low");
-		max_volume *= 0.5;
-		base_volume *= 0.5;
+		volume *= 0.5;
 	}
 
 	ESP_LOGI(tag, "Configure keys...");

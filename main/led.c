@@ -22,6 +22,12 @@
 #include "esp_log.h"
 
 
+#define FULL 255
+#define HALF 127
+#define TINT  63
+#define BACK  15
+
+
 static led_strip_handle_t led;
 
 
@@ -52,31 +58,31 @@ void led_note(int note)
 		ESP_ERROR_CHECK(led_strip_set_pixel(led, i, 0, 0, 0));
 
 	if (0 == note) {
-		ESP_ERROR_CHECK(led_strip_set_pixel(led, 0, 63, 63, 63));
+		ESP_ERROR_CHECK(led_strip_set_pixel(led, 0, HALF, HALF, HALF));
 	} else if (1 == note) {
-		ESP_ERROR_CHECK(led_strip_set_pixel(led, 0, 127, 0, 31));
+		ESP_ERROR_CHECK(led_strip_set_pixel(led, 0, FULL, 0, TINT));
 	} else if (2 == note) {
-		ESP_ERROR_CHECK(led_strip_set_pixel(led, 1, 63, 63, 63));
+		ESP_ERROR_CHECK(led_strip_set_pixel(led, 1, HALF, HALF, HALF));
 	} else if (3 == note) {
-		ESP_ERROR_CHECK(led_strip_set_pixel(led, 1, 127, 0, 31));
+		ESP_ERROR_CHECK(led_strip_set_pixel(led, 1, FULL, 0, TINT));
 	} else if (4 == note) {
-		ESP_ERROR_CHECK(led_strip_set_pixel(led, 2, 63, 63, 63));
+		ESP_ERROR_CHECK(led_strip_set_pixel(led, 2, HALF, HALF, HALF));
 	} else if (5 == note) {
-		ESP_ERROR_CHECK(led_strip_set_pixel(led, 3, 63, 63, 63));
+		ESP_ERROR_CHECK(led_strip_set_pixel(led, 3, HALF, HALF, HALF));
 	} else if (6 == note) {
-		ESP_ERROR_CHECK(led_strip_set_pixel(led, 3, 127, 0, 31));
+		ESP_ERROR_CHECK(led_strip_set_pixel(led, 3, FULL, 0, TINT));
 	} else if (7 == note) {
-		ESP_ERROR_CHECK(led_strip_set_pixel(led, 4, 63, 63, 63));
+		ESP_ERROR_CHECK(led_strip_set_pixel(led, 4, HALF, HALF, HALF));
 	} else if (8 == note) {
-		ESP_ERROR_CHECK(led_strip_set_pixel(led, 4, 127, 0, 31));
+		ESP_ERROR_CHECK(led_strip_set_pixel(led, 4, FULL, 0, TINT));
 	} else if (9 == note) {
-		ESP_ERROR_CHECK(led_strip_set_pixel(led, 5, 63, 63, 63));
+		ESP_ERROR_CHECK(led_strip_set_pixel(led, 5, HALF, HALF, HALF));
 	} else if (10 == note) {
-		ESP_ERROR_CHECK(led_strip_set_pixel(led, 5, 127, 0, 31));
+		ESP_ERROR_CHECK(led_strip_set_pixel(led, 5, FULL, 0, TINT));
 	} else if (11 == note) {
-		ESP_ERROR_CHECK(led_strip_set_pixel(led, 6, 63, 63, 63));
+		ESP_ERROR_CHECK(led_strip_set_pixel(led, 6, HALF, HALF, HALF));
 	} else if (12 == note) {
-		ESP_ERROR_CHECK(led_strip_set_pixel(led, 7, 63, 63, 63));
+		ESP_ERROR_CHECK(led_strip_set_pixel(led, 7, HALF, HALF, HALF));
 	}
 
 	ESP_ERROR_CHECK(led_strip_refresh(led));
@@ -86,7 +92,7 @@ void led_note(int note)
 void led_backlight(void)
 {
 	for (int i = 0; i < 8; i++)
-		ESP_ERROR_CHECK(led_strip_set_pixel(led, i, 31, 31, 31));
+		ESP_ERROR_CHECK(led_strip_set_pixel(led, i, BACK, BACK, BACK));
 
 	ESP_ERROR_CHECK(led_strip_refresh(led));
 }

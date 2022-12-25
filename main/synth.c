@@ -22,10 +22,10 @@
 #include <stdlib.h>
 
 
-inline static int16_t rand_sample(void)
+inline static float rand_sample(void)
 {
 	float sample = (float)rand() / (float)RAND_MAX;
-	return INT16_MAX * (sample - 0.5) * 2;
+	return (sample - 0.5) * 2 * INT16_MAX;
 }
 
 
@@ -35,6 +35,9 @@ void synth_string_pluck(struct synth_string *ss)
 
 	ss->cur_decay = ss->decay;
 	ss->cur_feedback = ss->feedback;
+
+	if (NULL == ss->buffer)
+		ss->buffer = calloc(sizeof(float), ss->delay);
 
 	for (int i = 0; i < ss->delay; i++)
 		ss->buffer[i] = rand_sample();
@@ -61,8 +64,11 @@ inline static int wrap(int a, int max_)
 }
 
 
-void synth_string_read(struct synth_string *ss, int16_t *out, size_t len)
+void synth_string_read(struct synth_string *ss, float *out, size_t len)
 {
+	if (NULL == ss->buffer)
+		ss->buffer = calloc(sizeof(float), ss->delay);
+
 	float fb = ss->cur_feedback;
 	float nfb = (1.0 - ss->cur_feedback) * 0.5;
 
@@ -76,11 +82,11 @@ void synth_string_read(struct synth_string *ss, int16_t *out, size_t len)
 		int prev = wrap(this - 1, delay);
 		int next = wrap(this + 1, delay);
 
-		int16_t this_sample = ss->buffer[this];
-		int16_t prev_sample = ss->buffer[prev];
-		int16_t next_sample = ss->buffer[next];
+		float this_sample = ss->buffer[this];
+		float prev_sample = ss->buffer[prev];
+		float next_sample = ss->buffer[next];
 
-		*(out++) += this_sample;
+		out[i] += this_sample;
 
 		int new = this_sample * fb
 		        + prev_sample * nfb

@@ -38,8 +38,8 @@ const char *const learning_songs[4] = {
 	/* Kočka leze dírou */
 	"CDEFG G A A G  A A G  FFFFE E D D G  FFFFE E D D C",
 
-	/* Zatím nic. */
-	"CDEFGAH+",
+	/* Pec nám spadla */
+	"GEEEGEEEGGAGGFF FDDDFDDDFFGFFEE",
 };
 
 

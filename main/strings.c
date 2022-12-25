@@ -35,52 +35,52 @@
 struct synth_string strings_piano1[NUM_STRINGS] = {
 	{
 		.delay = CONFIG_SAMPLE_FREQ / NOTE_C,
-		.feedback = 0.80,
+		.feedback = 0.50,
 		.decay = 0.999,
 	},
 	{
 		.delay = CONFIG_SAMPLE_FREQ / NOTE_Cs,
-		.feedback = 0.80,
+		.feedback = 0.55,
 		.decay = 0.999,
 	},
 	{
 		.delay = CONFIG_SAMPLE_FREQ / NOTE_D,
-		.feedback = 0.80,
+		.feedback = 0.60,
 		.decay = 0.999,
 	},
 	{
 		.delay = CONFIG_SAMPLE_FREQ / NOTE_Ds,
-		.feedback = 0.80,
+		.feedback = 0.64,
 		.decay = 0.999,
 	},
 	{
 		.delay = CONFIG_SAMPLE_FREQ / NOTE_E,
-		.feedback = 0.80,
+		.feedback = 0.68,
 		.decay = 0.999,
 	},
 	{
 		.delay = CONFIG_SAMPLE_FREQ / NOTE_F,
-		.feedback = 0.80,
+		.feedback = 0.70,
 		.decay = 0.999,
 	},
 	{
 		.delay = CONFIG_SAMPLE_FREQ / NOTE_Fs,
-		.feedback = 0.80,
+		.feedback = 0.72,
 		.decay = 0.999,
 	},
 	{
 		.delay = CONFIG_SAMPLE_FREQ / NOTE_G,
-		.feedback = 0.80,
+		.feedback = 0.74,
 		.decay = 0.999,
 	},
 	{
 		.delay = CONFIG_SAMPLE_FREQ / NOTE_Gs,
-		.feedback = 0.80,
+		.feedback = 0.76,
 		.decay = 0.999,
 	},
 	{
 		.delay = CONFIG_SAMPLE_FREQ / NOTE_A,
-		.feedback = 0.80,
+		.feedback = 0.78,
 		.decay = 0.999,
 	},
 	{
@@ -168,75 +168,5 @@ struct synth_string strings_piano2[NUM_STRINGS] = {
 		.decay = 0.999,
 	},
 };
-
-
-struct synth_string strings_guitar[NUM_STRINGS] = {
-	{
-		.delay = CONFIG_SAMPLE_FREQ / (NOTE_C / 4),
-		.feedback = 0.90,
-		.decay = 0.999,
-	},
-	{
-		.delay = CONFIG_SAMPLE_FREQ / (NOTE_Cs / 4),
-		.feedback = 0.90,
-		.decay = 0.999,
-	},
-	{
-		.delay = CONFIG_SAMPLE_FREQ / (NOTE_D / 4),
-		.feedback = 0.90,
-		.decay = 0.999,
-	},
-	{
-		.delay = CONFIG_SAMPLE_FREQ / (NOTE_Ds / 4),
-		.feedback = 0.90,
-		.decay = 0.999,
-	},
-	{
-		.delay = CONFIG_SAMPLE_FREQ / (NOTE_E / 4),
-		.feedback = 0.90,
-		.decay = 0.999,
-	},
-	{
-		.delay = CONFIG_SAMPLE_FREQ / (NOTE_F / 4),
-		.feedback = 0.90,
-		.decay = 0.999,
-	},
-	{
-		.delay = CONFIG_SAMPLE_FREQ / (NOTE_Fs / 4),
-		.feedback = 0.90,
-		.decay = 0.999,
-	},
-	{
-		.delay = CONFIG_SAMPLE_FREQ / (NOTE_G / 4),
-		.feedback = 0.90,
-		.decay = 0.999,
-	},
-	{
-		.delay = CONFIG_SAMPLE_FREQ / (NOTE_Gs / 4),
-		.feedback = 0.90,
-		.decay = 0.999,
-	},
-	{
-		.delay = CONFIG_SAMPLE_FREQ / (NOTE_A / 4),
-		.feedback = 0.90,
-		.decay = 0.999,
-	},
-	{
-		.delay = CONFIG_SAMPLE_FREQ / (NOTE_As / 4),
-		.feedback = 0.90,
-		.decay = 0.999,
-	},
-	{
-		.delay = CONFIG_SAMPLE_FREQ / (NOTE_H / 4),
-		.feedback = 0.90,
-		.decay = 0.999,
-	},
-	{
-		.delay = CONFIG_SAMPLE_FREQ / ((NOTE_C * 2) / 4),
-		.feedback = 0.90,
-		.decay = 0.999,
-	},
-};
-
 
 struct synth_string *strings_current = strings_piano2;

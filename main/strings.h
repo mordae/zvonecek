@@ -28,6 +28,3 @@ extern struct synth_string strings_piano1[NUM_STRINGS];
 
 /* Second set of piano strings. */
 extern struct synth_string strings_piano2[NUM_STRINGS];
-
-/* Guitar strings. */
-extern struct synth_string strings_guitar[NUM_STRINGS];
