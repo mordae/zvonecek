@@ -19,6 +19,7 @@
 #include "synth.h"
 #include "player.h"
 #include "strings.h"
+#include "registry.h"
 
 #include "config.h"
 
@@ -45,9 +46,15 @@ static int16_t buffer_i16[BUFFER_SIZE];
 
 static i2s_chan_handle_t snd;
 
-/* Depends on the volume slide switch. */
-float max_volume = INT16_MAX;
-float volume = 0.35;
+/* Absolute maximum volume. */
+static float max_volume = INT16_MAX;
+
+/* (global) Default volume.
+ * Multiple tones can combine and exceed even the maximum volume. */
+float volume = 0.25;
+
+/* Quiet mode. Depends on the position of the power switch. */
+static bool quiet = false;
 
 
 /* Keys, organized to three rows of 6 keys each. */
@@ -83,8 +90,11 @@ static void playback_task(void *arg)
 		size_t total = BUFFER_SIZE * sizeof(int16_t);
 		size_t written = 0;
 
+		/* Take quiet setting into account. */
+		float normal_volume = volume * (quiet ? 0.5 : 1.0);
+
 		for (int i = 0; i < BUFFER_SIZE; i++) {
-			float sample = buffer[i] * volume;
+			float sample = buffer[i] * normal_volume;
 
 			if (sample > max_volume)
 				sample = max_volume;
@@ -125,6 +135,8 @@ void app_main(void)
 	};
 	ESP_ERROR_CHECK(esp_pm_configure(&pm_cfg));
 
+	reg_init();
+
 	ESP_LOGI(tag, "Configure LED...");
 	led_init(CONFIG_LED_GPIO);
 
@@ -137,11 +149,15 @@ void app_main(void)
 
 	ESP_ERROR_CHECK(gpio_config(&gpio_vol));
 
+	/* Restore the saved volume. */
+	volume = reg_get_int("volume", volume) / 1000.0;
+
 	if (gpio_get_level(CONFIG_VOLUME_GPIO)) {
-		ESP_LOGI(tag, "Volume: high");
+		ESP_LOGI(tag, "Volume: loud");
+		quiet = false;
 	} else {
-		ESP_LOGI(tag, "Volume: low");
-		volume *= 0.5;
+		ESP_LOGI(tag, "Volume: quiet");
+		quiet = true;
 	}
 
 	ESP_LOGI(tag, "Configure keys...");

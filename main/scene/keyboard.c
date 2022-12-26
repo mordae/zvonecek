@@ -113,15 +113,8 @@ static bool on_key_pressed(int key)
 	}
 
 	if (17 == key) {
-		if (strings_current == strings_piano1)
-			strings_current = strings_piano2;
-		else if (strings_current == strings_piano2)
-			strings_current = strings_piano1;
-
-		synth_string_pluck(&strings_current[0]);
-
+		change_strings();
 		menu_held = true;
-
 		return true;
 	}
 

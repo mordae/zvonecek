@@ -6,6 +6,7 @@ idf_component_register(
 		"led.c"
 		"strings.c"
 		"player.c"
+		"registry.c"
 		"scene/keyboard.c"
 		"scene/learning.c"
 		"scene/menu.c"

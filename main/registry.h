@@ -16,18 +16,14 @@
 
 #pragma once
 
-#include "synth.h"
 
-#define NUM_STRINGS 13
+/* Initialize the registry NVS component. */
+void reg_init(void);
 
-/* Currently active set of <NUM_STRINGS> strings. */
-extern struct synth_string *strings_current;
 
-/* First set of piano strings. */
-extern struct synth_string strings_piano1[NUM_STRINGS];
+/* Save or overwrite an int value. */
+void reg_set_int(const char *name, int value);
 
-/* Second set of piano strings. */
-extern struct synth_string strings_piano2[NUM_STRINGS];
 
-/* Cycle through available string sets. */
-void change_strings(void);
+/* Recall an int value or a default. */
+int reg_get_int(const char *name, int dfl);

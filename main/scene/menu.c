@@ -18,6 +18,7 @@
 #include "scene.h"
 #include "strings.h"
 #include "player.h"
+#include "registry.h"
 #include "led.h"
 
 #include "esp_log.h"
@@ -27,7 +28,7 @@
 static const char *tag = "menu";
 
 /* Song to play when entering the scene. */
-static const char intro_song[] = "+HA GAH";
+static const char intro_song[] = "cdfga";
 
 /* Colors of individual LEDs for batch updates. */
 static struct led_color leds[8] = {
@@ -41,6 +42,16 @@ static struct led_color leds[8] = {
 	{255,   0,   0},
 };
 
+/* Menu items. */
+#define MENU_SIZE 2
+static int menu[MENU_SIZE] = {1, -1};
+
+/* From main.c. */
+extern float volume;
+
+/* Copy of the volume before menu. */
+static float initial_volume;
+
 
 static void on_init(void)
 {
@@ -49,8 +60,13 @@ static void on_init(void)
 static void on_top(void)
 {
 	ESP_LOGI(tag, "Menu scene now on top...");
+	initial_volume = volume;
+	strings_current = strings_piano2;
 	play_song(intro_song, 2);
-	led_set(leds);
+	led_reset();
+
+	menu[0] = reg_get_int("instr.0", 1);
+	menu[1] = -1;
 }
 
 static void on_activate(const void *arg)
@@ -66,29 +82,74 @@ static void on_deactivate(void)
 
 static unsigned on_idle(unsigned depth)
 {
+	for (int i = 0; i < MENU_SIZE; i++) {
+		leds[i].r = leds[i].g = leds[i].b = 0;
+
+		if (menu[i] < 0) {
+			leds[i].b = volume * 255;
+		} else if (menu[i]) {
+			leds[i].g = 255;
+		} else {
+			leds[i].r = 255;
+		}
+	}
+
+	led_set(leds);
+
 	return 1000;
 }
 
 static bool on_key_pressed(int key)
 {
+	if (0 == key) {
+		menu[0] = !menu[0];
+		return true;
+	}
+
+	if (1 == key) {
+		volume = volume < 0.110 ? 0.100 : volume - 0.010;
+		synth_string_pluck_shortly(&strings_current[0]);
+		ESP_LOGI(tag, "Volume: %f", volume);
+		return true;
+	}
+
+	if (3 == key) {
+		volume = volume > 0.990 ? 1.000 : volume + 0.010;
+		synth_string_pluck_shortly(&strings_current[0]);
+		ESP_LOGI(tag, "Volume: %f", volume);
+		return true;
+	}
+
 	if (11 == key) {
+		ESP_LOGI(tag, "Saving settings...");
+
+		reg_set_int("instr.0", menu[0]);
+		reg_set_int("instr.1", 1);
+
+		reg_set_int("volume", volume * 1000);
+
 		play_song("H+  ", 2);
 		scene_pop();
 		return true;
 	}
 
 	if (12 == key) {
+		volume = initial_volume;
+		ESP_LOGI(tag, "Volume: %f", volume);
+
 		play_song("AE  ", 2);
 		scene_pop();
 		return true;
 	}
 
-	return false;
+	/* Do not let the keys fall through. */
+	return true;
 }
 
 static bool on_key_released(int key)
 {
-	return false;
+	/* Do not let the keys fall through. */
+	return true;
 }
 
 
