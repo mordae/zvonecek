@@ -26,11 +26,13 @@
 
 static const char *tag = "keyboard";
 
-
+/* Song to play when entering the scene. */
 static const char intro_song[] = "CDEFGAH+";
+
+/* Song to play when left idle for too long. */
 static const char idle_song[] = "gGgGFC CFAAG F";
 
-
+/* How many μs have it been since last input? */
 static int64_t idle_since = 0;
 
 

@@ -49,6 +49,7 @@ static const char *current_song = learning_songs[0];
 /* What note to hit next. */
 static int next_note = 0;
 
+/* How many μs have it been since last input? */
 static int64_t idle_since = 0;
 
 
