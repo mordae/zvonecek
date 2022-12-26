@@ -8,6 +8,7 @@ idf_component_register(
 		"player.c"
 		"scene/keyboard.c"
 		"scene/learning.c"
+		"scene/menu.c"
 
 	INCLUDE_DIRS
 		"."

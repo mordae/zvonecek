@@ -16,7 +16,14 @@
 
 #pragma once
 
+#include <stdint.h>
+
+struct led_color {
+	uint8_t r, g, b;
+};
+
 void led_init(int gpio);
 void led_reset(void);
 void led_note(int note);
 void led_backlight(void);
+void led_set(struct led_color leds[8]);

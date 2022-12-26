@@ -260,7 +260,7 @@ void app_main(void)
 
 		for (int i = 0; i < NUM_KEYS; i++) {
 			if (keys[i] && !prev_keys[i]) {
-				if ((i < NUM_NOTE_KEYS) || (1 == total_pressed))
+				if ((i < NUM_NOTE_KEYS) || (total_pressed < 3))
 					(void)scene_handle_key_pressed(i);
 			}
 			else if (!keys[i] && prev_keys[i]) {

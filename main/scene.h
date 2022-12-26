@@ -121,3 +121,6 @@ extern struct scene Keyboard;
 /* Plays a tune and then prompts user to play using LEDs. */
 extern struct scene Learning;
 extern const char *const learning_songs[4];
+
+/* Secret menu to set things up. */
+extern struct scene Menu;

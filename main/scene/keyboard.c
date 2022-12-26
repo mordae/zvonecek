@@ -35,6 +35,9 @@ static const char idle_song[] = "gGgGFC CFAAG F";
 /* How many μs have it been since last input? */
 static int64_t idle_since = 0;
 
+/* Is the menu button being held? */
+static bool menu_held = false;
+
 
 static void on_init(void)
 {
@@ -85,6 +88,11 @@ static bool on_key_pressed(int key)
 	}
 
 	if (13 == key) {
+		if (menu_held) {
+			scene_push(&Menu, NULL);
+			return true;
+		}
+
 		scene_push(&Learning, learning_songs[0]);
 		return true;
 	}
@@ -112,6 +120,8 @@ static bool on_key_pressed(int key)
 
 		synth_string_pluck(&strings_current[0]);
 
+		menu_held = true;
+
 		return true;
 	}
 
@@ -123,6 +133,10 @@ static bool on_key_released(int key)
 	if (key < NUM_STRINGS) {
 		synth_string_dampen(&strings_current[key]);
 		return true;
+	}
+
+	if (17 == key) {
+		menu_held = false;
 	}
 
 	return false;

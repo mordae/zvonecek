@@ -98,6 +98,15 @@ void led_note(int note)
 }
 
 
+void led_set(struct led_color leds[8])
+{
+	for (int i = 0; i < 8; i++)
+		ESP_ERROR_CHECK(led_strip_set_pixel(led, i, leds[i].r, leds[i].g, leds[i].b));
+
+	refresh();
+}
+
+
 void led_backlight(void)
 {
 	for (int i = 0; i < 8; i++)
