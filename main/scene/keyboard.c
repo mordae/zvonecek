@@ -66,7 +66,7 @@ static unsigned on_idle(unsigned depth)
 	}
 
 	if ((now - idle_since) > (CONFIG_IDLE_TIMEOUT * 1000 * 1000)) {
-		idle_since += 10 * 1000 * 1000;
+		idle_since += CONFIG_IDLE_REPEAT * 1000 * 1000;
 		play_song(idle_song, 2);
 	}
 

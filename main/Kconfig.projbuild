@@ -4,6 +4,11 @@ menu "Zvonecek"
 		default 900
 		range 10 3600
 
+	config IDLE_REPEAT
+		int "Idle repeat timeout (seconds)"
+		default 60
+		range 10 3600
+
 	config SAMPLE_FREQ
 		int "Sampling frequency"
 		default 48000

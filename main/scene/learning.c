@@ -117,8 +117,8 @@ static unsigned on_idle(unsigned depth)
 {
 	int64_t now = esp_timer_get_time();
 
-	if ((now - idle_since) > (CONFIG_IDLE_TIMEOUT * 1000000)) {
-		idle_since += 10 * 1000 * 1000;
+	if ((now - idle_since) > (CONFIG_IDLE_TIMEOUT * 1000 * 1000)) {
+		idle_since += CONFIG_IDLE_REPEAT * 1000 * 1000;
 		int note = note_id(current_song[next_note]);
 		synth_string_pluck(&strings_current[note]);
 	}
