@@ -271,11 +271,12 @@ void app_main(void)
 		}
 
 		for (int i = 0; i < NUM_KEYS; i++) {
+			if (total_pressed > 2)
+				continue;
+
 			if (keys[i] && !prev_keys[i]) {
-				if ((i < NUM_NOTES) || (total_pressed < 3))
-					(void)scene_handle_key_pressed(i);
-			}
-			else if (!keys[i] && prev_keys[i]) {
+				(void)scene_handle_key_pressed(i);
+			} else if (!keys[i] && prev_keys[i]) {
 				(void)scene_handle_key_released(i);
 			}
 		}
