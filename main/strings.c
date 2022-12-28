@@ -16,8 +16,6 @@
 
 
 #include "strings.h"
-#include "registry.h"
-
 #include "esp_log.h"
 
 
@@ -176,27 +174,3 @@ struct synth_string strings_piano2[NUM_STRINGS] = {
 };
 
 struct synth_string *strings_current = strings_piano2;
-
-
-void change_strings(void)
-{
-	if (strings_current == strings_piano1) {
-		if (reg_get_int("instr.1", 1)) {
-			ESP_LOGI(tag, "Selected strings: piano2");
-			strings_current = strings_piano2;
-			return;
-		}
-
-		return;
-	}
-
-	if (strings_current == strings_piano2) {
-		if (reg_get_int("instr.0", 1)) {
-			ESP_LOGI(tag, "Selected strings: piano1");
-			strings_current = strings_piano1;
-			return;
-		}
-
-		return;
-	}
-}

@@ -16,15 +16,23 @@
 
 #pragma once
 
-#include "synth.h"
+#include <stdlib.h>
 
-#define NUM_STRINGS 13
+#define NUM_NOTES 13
 
-/* Currently active set of <NUM_STRINGS> strings. */
-extern struct synth_string *strings_current;
+struct instrument {
+	void (*enable)(void);
+	void (*key_press)(int key);
+	void (*key_release)(int key);
+	void (*read)(float *out, size_t len);
+};
 
-/* First set of piano strings. */
-extern struct synth_string strings_piano1[NUM_STRINGS];
+extern struct instrument *instrument;
 
-/* Second set of piano strings. */
-extern struct synth_string strings_piano2[NUM_STRINGS];
+extern struct instrument Piano1;
+extern struct instrument Piano2;
+
+void instrument_select(struct instrument *inst);
+void instrument_next(void);
+
+void instrument_press(int key);

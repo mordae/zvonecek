@@ -15,7 +15,7 @@
  */
 
 #include "player.h"
-#include "synth.h"
+#include "instrument.h"
 #include "led.h"
 
 #include "freertos/FreeRTOS.h"
@@ -37,7 +37,7 @@ void play_song(const char *song, float tempo)
 			vTaskDelay(pdMS_TO_TICKS(300 / tempo));
 		} else {
 			led_note(id);
-			synth_string_pluck_shortly(&strings_current[id]);
+			instrument_press(id);
 			vTaskDelay(pdMS_TO_TICKS(200 / tempo));
 			led_note(-1);
 			vTaskDelay(pdMS_TO_TICKS(100 / tempo));

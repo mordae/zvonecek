@@ -7,6 +7,7 @@ idf_component_register(
 		"strings.c"
 		"player.c"
 		"registry.c"
+		"instrument.c"
 		"scene/keyboard.c"
 		"scene/learning.c"
 		"scene/menu.c"

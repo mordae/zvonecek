@@ -16,7 +16,7 @@
 
 
 #include "scene.h"
-#include "strings.h"
+#include "instrument.h"
 #include "player.h"
 #include "registry.h"
 #include "led.h"
@@ -61,7 +61,7 @@ static void on_top(void)
 {
 	ESP_LOGI(tag, "Menu scene now on top...");
 	initial_volume = volume;
-	strings_current = strings_piano2;
+	instrument_select(&Piano2);
 	play_song(intro_song, 2);
 	led_reset();
 
@@ -108,14 +108,14 @@ static bool on_key_pressed(int key)
 
 	if (1 == key) {
 		volume = volume < 0.110 ? 0.100 : volume - 0.010;
-		synth_string_pluck_shortly(&strings_current[0]);
+		instrument_press(0);
 		ESP_LOGI(tag, "Volume: %f", volume);
 		return true;
 	}
 
 	if (3 == key) {
 		volume = volume > 0.990 ? 1.000 : volume + 0.010;
-		synth_string_pluck_shortly(&strings_current[0]);
+		instrument_press(0);
 		ESP_LOGI(tag, "Volume: %f", volume);
 		return true;
 	}

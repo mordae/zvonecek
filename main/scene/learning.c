@@ -16,7 +16,7 @@
 
 
 #include "scene.h"
-#include "strings.h"
+#include "instrument.h"
 #include "player.h"
 #include "led.h"
 
@@ -120,8 +120,8 @@ static unsigned on_idle(unsigned depth)
 
 	if ((now - idle_since) > (CONFIG_IDLE_TIMEOUT * 1000 * 1000)) {
 		idle_since += CONFIG_IDLE_REPEAT * 1000 * 1000;
-		int note = note_id(current_song[next_note]);
-		synth_string_pluck(&strings_current[note]);
+		int key = note_id(current_song[next_note]);
+		instrument_press(key);
 	}
 
 	return 1000;
@@ -131,8 +131,8 @@ static bool on_key_pressed(int key)
 {
 	idle_since = esp_timer_get_time();
 
-	if (key < NUM_STRINGS) {
-		synth_string_pluck(&strings_current[key]);
+	if (key < NUM_NOTES) {
+		instrument->key_press(key);
 
 		if (key == note_id(current_song[next_note])) {
 			advance();
@@ -182,8 +182,8 @@ static bool on_key_pressed(int key)
 
 static bool on_key_released(int key)
 {
-	if (key < NUM_STRINGS) {
-		synth_string_dampen(&strings_current[key]);
+	if (key < NUM_NOTES) {
+		instrument->key_release(key);
 		return true;
 	}
 

@@ -16,7 +16,7 @@
 
 
 #include "scene.h"
-#include "strings.h"
+#include "instrument.h"
 #include "player.h"
 #include "led.h"
 
@@ -82,8 +82,8 @@ static bool on_key_pressed(int key)
 {
 	idle_since = esp_timer_get_time();
 
-	if (key < NUM_STRINGS) {
-		synth_string_pluck(&strings_current[key]);
+	if (key < NUM_NOTES) {
+		instrument->key_press(key);
 		return true;
 	}
 
@@ -113,7 +113,7 @@ static bool on_key_pressed(int key)
 	}
 
 	if (17 == key) {
-		change_strings();
+		instrument_next();
 		menu_held = true;
 		return true;
 	}
@@ -123,8 +123,8 @@ static bool on_key_pressed(int key)
 
 static bool on_key_released(int key)
 {
-	if (key < NUM_STRINGS) {
-		synth_string_dampen(&strings_current[key]);
+	if (key < NUM_NOTES) {
+		instrument->key_release(key);
 		return true;
 	}
 

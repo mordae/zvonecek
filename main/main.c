@@ -16,9 +16,7 @@
 
 #include "led.h"
 #include "scene.h"
-#include "synth.h"
-#include "player.h"
-#include "strings.h"
+#include "instrument.h"
 #include "registry.h"
 
 #include "config.h"
@@ -58,7 +56,6 @@ static bool quiet = false;
 
 
 /* Keys, organized to three rows of 6 keys each. */
-#define NUM_NOTE_KEYS 13
 #define NUM_KEYS 18
 static bool keys[NUM_KEYS] = {false};
 static bool prev_keys[NUM_KEYS] = {false};
@@ -77,8 +74,7 @@ static void playback_task(void *arg)
 		 * Add samples from all strings to the buffer.
 		 * Most are going to be zeroes.
 		 */
-		for (int i = 0; i < NUM_NOTE_KEYS; i++)
-			synth_string_read(&strings_current[i], buffer, BUFFER_SIZE);
+		instrument->read(buffer, BUFFER_SIZE);
 
 		/* Total value of samples in the last buffer. When it hits zero,
 		 * we do not output anything but rather disable the amplifier. */
@@ -276,7 +272,7 @@ void app_main(void)
 
 		for (int i = 0; i < NUM_KEYS; i++) {
 			if (keys[i] && !prev_keys[i]) {
-				if ((i < NUM_NOTE_KEYS) || (total_pressed < 3))
+				if ((i < NUM_NOTES) || (total_pressed < 3))
 					(void)scene_handle_key_pressed(i);
 			}
 			else if (!keys[i] && prev_keys[i]) {
