@@ -31,6 +31,7 @@ extern struct instrument *instrument;
 
 extern struct instrument Piano1;
 extern struct instrument Piano2;
+extern struct instrument Extras;
 
 void instrument_select(struct instrument *inst);
 void instrument_next(void);

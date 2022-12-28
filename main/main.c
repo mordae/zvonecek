@@ -30,6 +30,8 @@
 #include "esp_random.h"
 #include "esp_pm.h"
 #include "esp_rom_sys.h"
+#include "esp_vfs.h"
+#include "esp_vfs_fat.h"
 
 #include <math.h>
 #include <stdlib.h>
@@ -132,6 +134,12 @@ void app_main(void)
 	ESP_ERROR_CHECK(esp_pm_configure(&pm_cfg));
 
 	reg_init();
+
+	ESP_LOGI(tag, "Mount /data/...");
+	esp_vfs_fat_mount_config_t fatfs_conf = {
+		.max_files = 13,
+	};
+	ESP_ERROR_CHECK(esp_vfs_fat_spiflash_mount_ro("/data", "storage", &fatfs_conf));
 
 	ESP_LOGI(tag, "Configure LED...");
 	led_init(CONFIG_LED_GPIO);

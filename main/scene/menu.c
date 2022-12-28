@@ -43,8 +43,8 @@ static struct led_color leds[8] = {
 };
 
 /* Menu items. */
-#define MENU_SIZE 2
-static int menu[MENU_SIZE] = {1, -1};
+#define MENU_SIZE 3
+static int menu[MENU_SIZE] = {1, -1, 1};
 
 /* From main.c. */
 extern float volume;
@@ -67,6 +67,7 @@ static void on_top(void)
 
 	menu[0] = reg_get_int("instr.0", 1);
 	menu[1] = -1;
+	menu[2] = reg_get_int("instr.2", 1);
 }
 
 static void on_activate(const void *arg)
@@ -120,11 +121,17 @@ static bool on_key_pressed(int key)
 		return true;
 	}
 
+	if (4 == key) {
+		menu[2] = !menu[2];
+		return true;
+	}
+
 	if (11 == key) {
 		ESP_LOGI(tag, "Saving settings...");
 
 		reg_set_int("instr.0", menu[0]);
 		reg_set_int("instr.1", 1);
+		reg_set_int("instr.2", menu[2]);
 
 		reg_set_int("volume", volume * 1000);
 
