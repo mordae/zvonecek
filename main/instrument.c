@@ -42,8 +42,10 @@ static void piano1_key_release(int key)
 
 static void piano1_read(float *out, size_t len)
 {
-	for (int i = 0; i < NUM_NOTES; i++)
+	for (int i = 0; i < NUM_NOTES; i++) {
 		synth_string_read(&strings_piano1[i], out, len);
+		synth_string_read(&strings_piano2[i], out, len);
+	}
 }
 
 
@@ -66,8 +68,10 @@ static void piano2_key_release(int key)
 
 static void piano2_read(float *out, size_t len)
 {
-	for (int i = 0; i < NUM_NOTES; i++)
+	for (int i = 0; i < NUM_NOTES; i++) {
+		synth_string_read(&strings_piano1[i], out, len);
 		synth_string_read(&strings_piano2[i], out, len);
+	}
 }
 
 
